@@ -28,6 +28,57 @@ Object {
       "_class": Array [
         "User",
       ],
+      "_key": "602bebeeb9f1b80007da131c",
+      "_rawData": Array [
+        Object {
+          "name": "default",
+          "rawData": Object {
+            "createdAt": "2021-02-16T15:59:42.436Z",
+            "displayName": "",
+            "email": "adam.williams@jupiterone.com",
+            "id": "602bebeeb9f1b80007da131c",
+            "isEmailVerified": false,
+            "isProfileCompleted": false,
+            "memberships": Array [
+              Object {
+                "org": "jupiteronedev",
+                "role": "MEMBER",
+                "status": "INVITED",
+              },
+            ],
+            "profile": Object {
+              "countryCode": "1",
+              "countryId": "US",
+              "formattedPhoneNumber": "",
+              "isManager": false,
+              "locale": "en-US",
+            },
+          },
+        },
+      ],
+      "_type": "at_spoke_user",
+      "createdOn": 1613491182436,
+      "displayName": "adam.williams@jupiterone.com",
+      "email": "adam.williams@jupiterone.com",
+      "id": "602bebeeb9f1b80007da131c",
+      "isEmailVerified": false,
+      "isProfileCompleted": false,
+      "memberships": Array [
+        Object {
+          "org": "jupiteronedev",
+          "role": "MEMBER",
+          "status": "INVITED",
+        },
+      ],
+      "name": "adam.williams@jupiterone.com",
+      "status": undefined,
+      "username": "adam.williams@jupiterone.com",
+      "webLink": "https://jupiteronedev.askspoke.com/users/602bebeeb9f1b80007da131c",
+    },
+    Object {
+      "_class": Array [
+        "User",
+      ],
       "_key": "602585518843b90007eeda34",
       "_rawData": Array [
         Object {
@@ -203,11 +254,39 @@ Object {
                   "teams": null,
                 },
               },
+              Object {
+                "_id": "602bebeeb9f1b80007da131f",
+                "joinedAt": "2021-02-16T15:59:42.590Z",
+                "status": "AWAY",
+                "teamRole": "TEAM_ADMIN",
+                "user": Object {
+                  "_id": "602bebeeb9f1b80007da131c",
+                  "displayName": "",
+                  "email": "adam.williams@jupiterone.com",
+                  "formattedPhoneNumber": "",
+                  "hasGoogleId": false,
+                  "id": "602bebeeb9f1b80007da131c",
+                  "internationalPhoneNumber": "",
+                  "isLoggedIn": false,
+                  "memberships": Array [
+                    Object {
+                      "id": null,
+                      "org": "jupiteronedev",
+                      "role": "MEMBER",
+                      "status": "INVITED",
+                    },
+                  ],
+                  "profile": Object {
+                    "formattedPhoneNumber": "",
+                  },
+                  "teams": null,
+                },
+              },
             ],
             "analyticsDashboardId": "d871625f78fc",
             "canRoute": true,
-            "cdcPartId": "08589fd4-9b16-4d58-9152-d28bca72b0c0",
-            "cdcTransactionId": "282412dd-860d-4f08-8cd2-42ee9fa92b2b",
+            "cdcPartId": "61df53b2-99d7-4e39-8de4-c57522932888",
+            "cdcTransactionId": "2956890b-ab22-4111-b194-35df68eebecd",
             "color": "blue",
             "createdAt": "2021-02-05T19:56:34.846Z",
             "createdFromSample": false,
@@ -285,6 +364,28 @@ Object {
                 "formattedPhoneNumber": "",
                 "hasGoogleId": false,
                 "id": "602585518843b90007eeda34",
+                "internationalPhoneNumber": "",
+                "isLoggedIn": false,
+                "memberships": Array [
+                  Object {
+                    "id": null,
+                    "org": "jupiteronedev",
+                    "role": "MEMBER",
+                    "status": "INVITED",
+                  },
+                ],
+                "profile": Object {
+                  "formattedPhoneNumber": "",
+                },
+                "teams": null,
+              },
+              Object {
+                "_id": "602bebeeb9f1b80007da131c",
+                "displayName": "",
+                "email": "adam.williams@jupiterone.com",
+                "formattedPhoneNumber": "",
+                "hasGoogleId": false,
+                "id": "602bebeeb9f1b80007da131c",
                 "internationalPhoneNumber": "",
                 "isLoggedIn": false,
                 "memberships": Array [
@@ -581,8 +682,8 @@ Object {
                         "timestamps": Object {
                           "createdAt": "2021-02-05T19:55:05.428Z",
                           "lastActive": Object {
-                            "any": "2021-02-13T00:04:09.380Z",
-                            "web": "2021-02-13T00:04:09.380Z",
+                            "any": "2021-02-16T15:58:51.532Z",
+                            "web": "2021-02-16T15:58:51.532Z",
                           },
                         },
                         "wasInviteRequested": false,
@@ -654,8 +755,8 @@ Object {
                         "timestamps": Object {
                           "createdAt": "2021-02-05T19:55:05.428Z",
                           "lastActive": Object {
-                            "any": "2021-02-13T00:04:09.380Z",
-                            "web": "2021-02-13T00:04:09.380Z",
+                            "any": "2021-02-16T15:58:51.532Z",
+                            "web": "2021-02-16T15:58:51.532Z",
                           },
                         },
                         "wasInviteRequested": false,
@@ -730,8 +831,8 @@ Object {
                         "timestamps": Object {
                           "createdAt": "2021-02-05T19:55:05.428Z",
                           "lastActive": Object {
-                            "any": "2021-02-13T00:04:09.380Z",
-                            "web": "2021-02-13T00:04:09.380Z",
+                            "any": "2021-02-16T15:58:51.532Z",
+                            "web": "2021-02-16T15:58:51.532Z",
                           },
                         },
                         "wasInviteRequested": false,
@@ -769,6 +870,7 @@ Object {
       "email": "request-6026f691ae0b320006140f3e@jupiteronedev.askspoke.com",
       "name": "Request for “Broken hardware”",
       "onwer": "602585518843b90007eeda34",
+      "partial": true,
       "requestType": "6026f670ac67a90007a282f1",
       "requester": "601da2951d25d80007bf87d2",
       "status": "OPEN",
@@ -811,6 +913,7 @@ Object {
       "email": "request-6026d93a0a4bad0007bf52ee@jupiteronedev.askspoke.com",
       "name": "Test msg for Slack integration",
       "onwer": "602585518843b90007eeda34",
+      "partial": true,
       "requestType": undefined,
       "requester": "601da2951d25d80007bf87d2",
       "status": "OPEN",
@@ -856,6 +959,7 @@ Object {
       "email": "request-602585518843b90007eeda39@jupiteronedev.askspoke.com",
       "name": "Testing email to see if it works",
       "onwer": "601da2951d25d80007bf87d2",
+      "partial": true,
       "requestType": undefined,
       "requester": "602585518843b90007eeda34",
       "status": "RESOLVED",
@@ -896,6 +1000,7 @@ Object {
       "email": "request-6025858242c00500073e2f6f@jupiteronedev.askspoke.com",
       "name": "Sample request - where is the printer?",
       "onwer": undefined,
+      "partial": true,
       "requestType": undefined,
       "requester": "602585518843b90007eeda34",
       "status": "OPEN",
@@ -903,6 +1008,14 @@ Object {
     },
   ],
   "collectedRelationships": Array [
+    Object {
+      "_class": "HAS",
+      "_fromEntityKey": "at-spoke-account:local-integration-instance",
+      "_key": "at-spoke-account:local-integration-instance|has|602bebeeb9f1b80007da131c",
+      "_toEntityKey": "602bebeeb9f1b80007da131c",
+      "_type": "at_spoke_account_has_user",
+      "displayName": "HAS",
+    },
     Object {
       "_class": "HAS",
       "_fromEntityKey": "at-spoke-account:local-integration-instance",
@@ -940,6 +1053,14 @@ Object {
       "_fromEntityKey": "601da2f204e2850006039574",
       "_key": "601da2f204e2850006039574|has|602585518843b90007eeda34",
       "_toEntityKey": "602585518843b90007eeda34",
+      "_type": "at_spoke_team_has_user",
+      "displayName": "HAS",
+    },
+    Object {
+      "_class": "HAS",
+      "_fromEntityKey": "601da2f204e2850006039574",
+      "_key": "601da2f204e2850006039574|has|602bebeeb9f1b80007da131c",
+      "_toEntityKey": "602bebeeb9f1b80007da131c",
       "_type": "at_spoke_team_has_user",
       "displayName": "HAS",
     },
@@ -1012,7 +1133,7 @@ Object {
     "at_spoke_request",
     "at_spoke_account_has_request",
   ],
-  "numCollectedEntities": 10,
-  "numCollectedRelationships": 12,
+  "numCollectedEntities": 11,
+  "numCollectedRelationships": 14,
 }
 `;

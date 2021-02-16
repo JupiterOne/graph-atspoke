@@ -123,9 +123,9 @@ export class APIClient {
     iteratee: ResourceIteratee<AtSpokeUser>,
   ): Promise<void> {
     const pageSize = 25; //do not increase, b/c it will break when ai=true for atSpoke
-    var recordsPulled = 0;
-    var lastRecord = 0;
-    while (lastRecord == 0) {
+    let recordsPulled = 0;
+    let lastRecord = false;
+    while (!lastRecord) {
       const paramsToPass = {
         params: {
           start: recordsPulled, //starting index. 0 is most recent.
@@ -143,7 +143,7 @@ export class APIClient {
         await iteratee(user);
       }
 
-      if (users.length < pageSize) { lastRecord = 1; }
+      if (users.length < pageSize) { lastRecord = true; }
       recordsPulled = recordsPulled + pageSize;
     }
   }
@@ -157,9 +157,9 @@ export class APIClient {
     iteratee: ResourceIteratee<AtSpokeGroup>,
   ): Promise<void> {
     const pageSize = 25; //do not increase, b/c it will break when ai=true for atSpoke
-    var recordsPulled = 0;
-    var lastRecord = 0;
-    while (lastRecord == 0) {
+    let recordsPulled = 0;
+    let lastRecord = false;
+    while (!lastRecord) {
       const paramsToPass = {
         params: {
           start: recordsPulled, //starting index. 0 is most recent.
@@ -183,7 +183,7 @@ export class APIClient {
         await iteratee(group);
       }
 
-      if (groups.length < pageSize) { lastRecord = 1; }
+      if (groups.length < pageSize) { lastRecord = true; }
       recordsPulled = recordsPulled + pageSize;
     }
   }
@@ -218,13 +218,17 @@ export class APIClient {
     if (parseInt(this.config.numRequests) > 0) {
       const recordsLimit = parseInt(this.config.numRequests);
       const pageSize = 100; //the max of the atSpoke v1 API
-      var recordsPulled = 0;
-      var lastRecord = 0;
-      while ((recordsPulled < recordsLimit) && (lastRecord == 0)) {
+      let recordsPulled = 0;
+      let lastRecord = false;
+      while ((recordsPulled < recordsLimit) && (!lastRecord)) {
+        let recordsToPull = pageSize;
+        if ((recordsLimit - recordsPulled) < (pageSize)) {
+          recordsToPull = recordsLimit - recordsPulled;;
+        }
         const paramsToPass = {
           params: {
             start: recordsPulled, //starting index of requests. 0 is most recent.
-            limit: pageSize,
+            limit: recordsToPull,
             status: 'OPEN,RESOLVED', //pulls only OPEN by default
           },
         };
@@ -239,7 +243,7 @@ export class APIClient {
         for (const request of requests) {
           await iteratee(request);
         }
-        if (requests.length < pageSize) { lastRecord = 1; }
+        if (requests.length < pageSize) { lastRecord = true; }
         recordsPulled = recordsPulled + pageSize;
       }
     }
@@ -256,9 +260,9 @@ export class APIClient {
 
     if (parseInt(this.config.numRequests) > 0) {
       const pageSize = 25; 
-      var recordsPulled = 0;
-      var lastRecord = 0;
-      while (lastRecord == 0) {
+      let recordsPulled = 0;
+      let lastRecord = false;
+      while (!lastRecord) {
         const paramsToPass = {
           params: {
             start: recordsPulled, //starting index. 0 is most recent.
@@ -275,7 +279,7 @@ export class APIClient {
         for (const requestType of requestTypes) {
           await iteratee(requestType);
         }
-        if (requestTypes.length < pageSize) { lastRecord = 1; }
+        if (requestTypes.length < pageSize) { lastRecord = true; }
         recordsPulled = recordsPulled + pageSize;
       }
     }
