@@ -1,18 +1,37 @@
-import { createMockStepExecutionContext } from '@jupiterone/integration-sdk-testing';
+import {
+  createMockStepExecutionContext,
+  Recording,
+} from '@jupiterone/integration-sdk-testing';
 
 import { IntegrationConfig } from '../types';
+import { setupSpokeRecording } from '../../test/recording';
 import { fetchGroups, fetchUsers } from './access';
 import { fetchAccountDetails } from './account';
+import { fetchRequests } from './requests';
+import { fetchWebhooks } from './webhooks';
 
-const DEFAULT_CLIENT_ID = 'dummy-acme-client-id';
-const DEFAULT_CLIENT_SECRET = 'dummy-acme-client-secret';
+const DEFAULT_API_KEY = 'fake_api_key'; // works because we have a recording now
+const DEFAULT_API_REQUESTS = '5';
 
 const integrationConfig: IntegrationConfig = {
-  clientId: process.env.CLIENT_ID || DEFAULT_CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET || DEFAULT_CLIENT_SECRET,
+  apiKey: process.env.API_KEY || DEFAULT_API_KEY,
+  numRequests: process.env.NUM_REQUESTS || DEFAULT_API_REQUESTS,
 };
 
+jest.setTimeout(1000 * 60 * 1);
+
+let recording: Recording;
+
+afterEach(async () => {
+  await recording.stop();
+});
+
 test('should collect data', async () => {
+  recording = setupSpokeRecording({
+    directory: __dirname,
+    name: 'steps',
+  });
+
   const context = createMockStepExecutionContext<IntegrationConfig>({
     instanceConfig: integrationConfig,
   });
@@ -22,6 +41,8 @@ test('should collect data', async () => {
   await fetchAccountDetails(context);
   await fetchUsers(context);
   await fetchGroups(context);
+  await fetchWebhooks(context);
+  await fetchRequests(context);
 
   // Review snapshot, failure is a regression
   expect({
@@ -39,16 +60,16 @@ test('should collect data', async () => {
   expect(accounts).toMatchGraphObjectSchema({
     _class: ['Account'],
     schema: {
-      additionalProperties: false,
+      additionalProperties: true,
       properties: {
-        _type: { const: 'acme_account' },
+        _type: { const: 'at_spoke_account' },
         manager: { type: 'string' },
         _rawData: {
           type: 'array',
           items: { type: 'object' },
         },
       },
-      required: ['manager'],
+      required: ['org'], //we use this to make webLinks to users
     },
   });
 
@@ -59,16 +80,16 @@ test('should collect data', async () => {
   expect(users).toMatchGraphObjectSchema({
     _class: ['User'],
     schema: {
-      additionalProperties: false,
+      additionalProperties: true,
       properties: {
-        _type: { const: 'acme_user' },
+        _type: { const: 'at_spoke_user' },
         firstName: { type: 'string' },
         _rawData: {
           type: 'array',
           items: { type: 'object' },
         },
       },
-      required: ['firstName'],
+      required: ['email'], //we use this to make webLinks and even names if name is blank
     },
   });
 
@@ -79,20 +100,35 @@ test('should collect data', async () => {
   expect(userGroups).toMatchGraphObjectSchema({
     _class: ['UserGroup'],
     schema: {
-      additionalProperties: false,
+      additionalProperties: true,
       properties: {
-        _type: { const: 'acme_group' },
-        logoLink: {
-          type: 'string',
-          // Validate that the `logoLink` property has a URL format
-          format: 'url',
-        },
+        _type: { const: 'at_spoke_team' },
         _rawData: {
           type: 'array',
           items: { type: 'object' },
         },
       },
-      required: ['logoLink'],
+      required: [],
+    },
+  });
+
+  //webhooks and requests are optional and won't exist on all accts
+  const webhooks = context.jobState.collectedEntities.filter((e) =>
+    e._class.includes('ApplicationEndpoint'),
+  );
+  //expect(webhooks.length).toBeGreaterThan(0);
+  expect(webhooks).toMatchGraphObjectSchema({
+    _class: ['ApplicationEndpoint'],
+    schema: {
+      additionalProperties: true,
+      properties: {
+        _type: { const: 'at_spoke_webhook' },
+        _rawData: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+      },
+      required: [],
     },
   });
 });

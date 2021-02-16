@@ -21,18 +21,35 @@ export async function fetchUsers({
   const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
   await apiClient.iterateUsers(async (user) => {
+    //real names are optional for atSpoke users
+    let graphName;
+    if (user.displayName) {
+      graphName = user.displayName;
+    } else {
+      graphName = user.email;
+    }
+
+    //a weblink is not included in the API user object, but it exists and is derivable
+    //it is https://<accountEntity.org>.askspoke.com/users/user.id
+    const permalink = `https://${accountEntity.org}.askspoke.com/users/${user.id}`;
+
     const userEntity = await jobState.addEntity(
       createIntegrationEntity({
         entityData: {
           source: user,
           assign: {
-            _type: 'acme_user',
+            _type: 'at_spoke_user',
             _class: 'User',
-            username: 'testusername',
-            email: 'test@test.com',
-            // This is a custom property that is not a part of the data model class
-            // hierarchy. See: https://github.com/JupiterOne/data-model/blob/master/src/schemas/User.json
-            firstName: 'John',
+            _key: user.id,
+            username: graphName,
+            name: graphName,
+            displayName: graphName,
+            webLink: permalink,
+            email: user.email,
+            isEmailVerified: user.isEmailVerified,
+            isProfileCompleted: user.isProfileCompleted,
+            status: user.status,
+            memberships: user.memberships,
           },
         },
       }),
@@ -62,12 +79,15 @@ export async function fetchGroups({
         entityData: {
           source: group,
           assign: {
-            _type: 'acme_group',
+            _type: 'at_spoke_team',
             _class: 'UserGroup',
-            email: 'testgroup@test.com',
-            // This is a custom property that is not a part of the data model class
-            // hierarchy. See: https://github.com/JupiterOne/data-model/blob/master/src/schemas/UserGroup.json
-            logoLink: 'https://test.com/logo.png',
+            _key: group.id,
+            email: group.email,
+            name: group.name,
+            displayName: group.name,
+            description: group.description,
+            org: group.org,
+            webLink: group.permalink,
           },
         },
       }),
@@ -107,32 +127,68 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Users',
     entities: [
       {
-        resourceName: 'Account',
-        _type: 'acme_account',
+        resourceName: 'atSpoke Account',
+        _type: 'at_spoke_account',
         _class: 'Account',
+      },
+      {
+        resourceName: 'atSpoke User',
+        _type: 'at_spoke_user',
+        _class: 'User',
       },
     ],
     relationships: [
       {
-        _type: 'acme_account_has_user',
+        _type: 'at_spoke_account_has_user',
         _class: RelationshipClass.HAS,
-        sourceType: 'acme_account',
-        targetType: 'acme_user',
-      },
-      {
-        _type: 'acme_account_has_group',
-        _class: RelationshipClass.HAS,
-        sourceType: 'acme_account',
-        targetType: 'acme_group',
-      },
-      {
-        _type: 'acme_group_has_user',
-        _class: RelationshipClass.HAS,
-        sourceType: 'acme_group',
-        targetType: 'acme_user',
+        sourceType: 'at_spoke_account',
+        targetType: 'at_spoke_user',
       },
     ],
     dependsOn: ['fetch-account'],
     executionHandler: fetchUsers,
+  },
+  {
+    id: 'fetch-groups',
+    name: 'Fetch UserGroups',
+    entities: [
+      {
+        resourceName: 'atSpoke Account',
+        _type: 'at_spoke_account',
+        _class: 'Account',
+      },
+      {
+        resourceName: 'atSpoke User',
+        _type: 'at_spoke_user',
+        _class: 'User',
+      },
+      {
+        resourceName: 'atSpoke Team',
+        _type: 'at_spoke_team',
+        _class: 'UserGroup',
+      },
+    ],
+    relationships: [
+      {
+        _type: 'at_spoke_account_has_user',
+        _class: RelationshipClass.HAS,
+        sourceType: 'at_spoke_account',
+        targetType: 'at_spoke_user',
+      },
+      {
+        _type: 'at_spoke_account_has_team',
+        _class: RelationshipClass.HAS,
+        sourceType: 'at_spoke_account',
+        targetType: 'at_spoke_team',
+      },
+      {
+        _type: 'at_spoke_team_has_user',
+        _class: RelationshipClass.HAS,
+        sourceType: 'at_spoke_team',
+        targetType: 'at_spoke_user',
+      },
+    ],
+    dependsOn: ['fetch-users'],
+    executionHandler: fetchGroups,
   },
 ];
