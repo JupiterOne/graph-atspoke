@@ -94,7 +94,7 @@ export class APIClient {
     const client = axios.create({
       headers: {
         get: {
-          client: 'JupiterOne-Spoke Integration client',
+          client: 'JupiterOne-atSpoke Integration client',
           'Content-Type': 'application/json',
           'Api-Key': this.config.apiKey,
         },
@@ -122,14 +122,29 @@ export class APIClient {
   public async iterateUsers(
     iteratee: ResourceIteratee<AtSpokeUser>,
   ): Promise<void> {
-    const reply = await this.contactAPI(
-      'https://api.askspoke.com/api/v1/users',
-    );
+    const pageSize = 25; //do not increase, b/c it will break when ai=true for atSpoke
+    var recordsPulled = 0;
+    var lastRecord = 0;
+    while (lastRecord == 0) {
+      const paramsToPass = {
+        params: {
+          start: recordsPulled, //starting index. 0 is most recent.
+          limit: pageSize,
+        },
+      };
+      const reply = await this.contactAPI(
+        'https://api.askspoke.com/api/v1/users', 
+        paramsToPass,
+      );
 
-    const users: AtSpokeUser[] = reply.results;
+      const users: AtSpokeUser[] = reply.results;
 
-    for (const user of users) {
-      await iteratee(user);
+      for (const user of users) {
+        await iteratee(user);
+      }
+
+      if (users.length < pageSize) { lastRecord = 1; }
+      recordsPulled = recordsPulled + pageSize;
     }
   }
 
@@ -141,20 +156,35 @@ export class APIClient {
   public async iterateGroups(
     iteratee: ResourceIteratee<AtSpokeGroup>,
   ): Promise<void> {
-    const reply = await this.contactAPI(
-      'https://api.askspoke.com/api/v1/teams',
-    );
+    const pageSize = 25; //do not increase, b/c it will break when ai=true for atSpoke
+    var recordsPulled = 0;
+    var lastRecord = 0;
+    while (lastRecord == 0) {
+      const paramsToPass = {
+        params: {
+          start: recordsPulled, //starting index. 0 is most recent.
+          limit: pageSize,
+        },
+      };
+      const reply = await this.contactAPI(
+        'https://api.askspoke.com/api/v1/teams',
+        paramsToPass,
+      );
 
-    const groups: AtSpokeGroup[] = reply.results;
+      const groups: AtSpokeGroup[] = reply.results;
 
-    for (const group of groups) {
-      if (group.users === undefined) {
-        group.users = [];
+      for (const group of groups) {
+        if (group.users === undefined) {
+          group.users = [];
+        }
+        for (const agent of group.agentList) {
+          group.users.push(agent.user);
+        }
+        await iteratee(group);
       }
-      for (const agent of group.agentList) {
-        group.users.push(agent.user);
-      }
-      await iteratee(group);
+
+      if (groups.length < pageSize) { lastRecord = 1; }
+      recordsPulled = recordsPulled + pageSize;
     }
   }
 
@@ -185,27 +215,32 @@ export class APIClient {
   public async iterateRequests(
     iteratee: ResourceIteratee<AtSpokeRequest>,
   ): Promise<void> {
-    if (
-      !(parseInt(this.config.numRequests) == 0) &&
-      parseInt(this.config.numRequests) <= 100
-    ) {
-      const paramsToPass = {
-        params: {
-          start: 0, //starting index of requests. 0 is most recent.
-          limit: this.config.numRequests, //doesn't matter that it's a string
-          status: 'OPEN,RESOLVED',
-        },
-      };
-
-      const reply = await this.contactAPI(
-        'https://api.askspoke.com/api/v1/requests',
-        paramsToPass,
-      );
-
-      const requests: AtSpokeRequest[] = reply.results;
-
-      for (const request of requests) {
-        await iteratee(request);
+    if (parseInt(this.config.numRequests) > 0) {
+      const recordsLimit = parseInt(this.config.numRequests);
+      const pageSize = 100; //the max of the atSpoke v1 API
+      var recordsPulled = 0;
+      var lastRecord = 0;
+      while ((recordsPulled < recordsLimit) && (lastRecord == 0)) {
+        const paramsToPass = {
+          params: {
+            start: recordsPulled, //starting index of requests. 0 is most recent.
+            limit: pageSize,
+            status: 'OPEN,RESOLVED', //pulls only OPEN by default
+          },
+        };
+  
+        const reply = await this.contactAPI(
+          'https://api.askspoke.com/api/v1/requests',
+          paramsToPass,
+        );
+  
+        const requests: AtSpokeRequest[] = reply.results;
+  
+        for (const request of requests) {
+          await iteratee(request);
+        }
+        if (requests.length < pageSize) { lastRecord = 1; }
+        recordsPulled = recordsPulled + pageSize;
       }
     }
   }
@@ -218,14 +253,31 @@ export class APIClient {
   public async iterateRequestTypes(
     iteratee: ResourceIteratee<AtSpokeRequestType>,
   ): Promise<void> {
-    const reply = await this.contactAPI(
-      'https://api.askspoke.com/api/v1/request_types',
-    );
 
-    const requestTypes: AtSpokeRequestType[] = reply.results;
+    if (parseInt(this.config.numRequests) > 0) {
+      const pageSize = 25; 
+      var recordsPulled = 0;
+      var lastRecord = 0;
+      while (lastRecord == 0) {
+        const paramsToPass = {
+          params: {
+            start: recordsPulled, //starting index. 0 is most recent.
+            limit: pageSize,
+          },
+        };
+        const reply = await this.contactAPI(
+          'https://api.askspoke.com/api/v1/request_types',
+          paramsToPass,
+        );
 
-    for (const requestType of requestTypes) {
-      await iteratee(requestType);
+        const requestTypes: AtSpokeRequestType[] = reply.results;
+
+        for (const requestType of requestTypes) {
+          await iteratee(requestType);
+        }
+        if (requestTypes.length < pageSize) { lastRecord = 1; }
+        recordsPulled = recordsPulled + pageSize;
+      }
     }
   }
 
