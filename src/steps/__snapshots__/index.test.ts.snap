@@ -682,8 +682,8 @@ Object {
                         "timestamps": Object {
                           "createdAt": "2021-02-05T19:55:05.428Z",
                           "lastActive": Object {
-                            "any": "2021-02-16T15:58:51.532Z",
-                            "web": "2021-02-16T15:58:51.532Z",
+                            "any": "2021-02-16T19:37:45.607Z",
+                            "web": "2021-02-16T19:37:45.607Z",
                           },
                         },
                         "wasInviteRequested": false,
@@ -755,8 +755,8 @@ Object {
                         "timestamps": Object {
                           "createdAt": "2021-02-05T19:55:05.428Z",
                           "lastActive": Object {
-                            "any": "2021-02-16T15:58:51.532Z",
-                            "web": "2021-02-16T15:58:51.532Z",
+                            "any": "2021-02-16T19:37:45.607Z",
+                            "web": "2021-02-16T19:37:45.607Z",
                           },
                         },
                         "wasInviteRequested": false,
@@ -831,8 +831,8 @@ Object {
                         "timestamps": Object {
                           "createdAt": "2021-02-05T19:55:05.428Z",
                           "lastActive": Object {
-                            "any": "2021-02-16T15:58:51.532Z",
-                            "web": "2021-02-16T15:58:51.532Z",
+                            "any": "2021-02-16T19:37:45.607Z",
+                            "web": "2021-02-16T19:37:45.607Z",
                           },
                         },
                         "wasInviteRequested": false,
@@ -869,7 +869,7 @@ Object {
       "displayName": "Request for “Broken hardware”",
       "email": "request-6026f691ae0b320006140f3e@jupiteronedev.askspoke.com",
       "name": "Request for “Broken hardware”",
-      "onwer": "602585518843b90007eeda34",
+      "owner": "602585518843b90007eeda34",
       "partial": true,
       "requestType": "6026f670ac67a90007a282f1",
       "requester": "601da2951d25d80007bf87d2",
@@ -912,7 +912,7 @@ Object {
       "displayName": "Test msg for Slack integration",
       "email": "request-6026d93a0a4bad0007bf52ee@jupiteronedev.askspoke.com",
       "name": "Test msg for Slack integration",
-      "onwer": "602585518843b90007eeda34",
+      "owner": "602585518843b90007eeda34",
       "partial": true,
       "requestType": undefined,
       "requester": "601da2951d25d80007bf87d2",
@@ -958,7 +958,7 @@ Object {
       "displayName": "Testing email to see if it works",
       "email": "request-602585518843b90007eeda39@jupiteronedev.askspoke.com",
       "name": "Testing email to see if it works",
-      "onwer": "601da2951d25d80007bf87d2",
+      "owner": "601da2951d25d80007bf87d2",
       "partial": true,
       "requestType": undefined,
       "requester": "602585518843b90007eeda34",
@@ -999,7 +999,7 @@ Object {
       "displayName": "Sample request - where is the printer?",
       "email": "request-6025858242c00500073e2f6f@jupiteronedev.askspoke.com",
       "name": "Sample request - where is the printer?",
-      "onwer": undefined,
+      "owner": undefined,
       "partial": true,
       "requestType": undefined,
       "requester": "602585518843b90007eeda34",

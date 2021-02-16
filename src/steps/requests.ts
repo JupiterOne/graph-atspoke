@@ -35,7 +35,7 @@ export async function fetchRequests({
             email: request.email,
             status: request.status,
             requester: request.requester,
-            onwer: request.owner,
+            owner: request.owner,
             requestType: request.requestType,
           },
         },

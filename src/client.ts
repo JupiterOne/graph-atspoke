@@ -229,7 +229,7 @@ export class APIClient {
           params: {
             start: recordsPulled, //starting index of requests. 0 is most recent.
             limit: recordsToPull,
-            status: 'OPEN,RESOLVED', //pulls only OPEN by default
+            status: 'OPEN,RESOLVED,PENDING,LOCKED,AUTO_RESOLVED', //pulls only OPEN by default
           },
         };
   
