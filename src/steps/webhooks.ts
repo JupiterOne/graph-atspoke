@@ -58,11 +58,6 @@ export const webhookSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Webhooks',
     entities: [
       {
-        resourceName: 'atSpoke Account',
-        _type: 'at_spoke_account',
-        _class: 'Account',
-      },
-      {
         resourceName: 'atSpoke Webhook',
         _type: 'at_spoke_webhook',
         _class: 'ApplicationEndpoint',
