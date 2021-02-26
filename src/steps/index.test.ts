@@ -5,7 +5,7 @@ import {
 
 import { IntegrationConfig } from '../types';
 import { setupSpokeRecording } from '../../test/recording';
-import { fetchGroups, fetchUsers } from './access';
+import { fetchTeams, fetchUsers } from './access';
 import { fetchAccountDetails } from './account';
 import { fetchRequests } from './requests';
 import { fetchWebhooks } from './webhooks';
@@ -40,7 +40,7 @@ test('should collect data', async () => {
   // See https://github.com/JupiterOne/sdk/issues/262.
   await fetchAccountDetails(context);
   await fetchUsers(context);
-  await fetchGroups(context);
+  await fetchTeams(context);
   await fetchWebhooks(context);
   await fetchRequests(context);
 

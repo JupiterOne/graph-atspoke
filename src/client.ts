@@ -18,7 +18,7 @@ export type AtSpokeUser = {
   startDate?: string;
 };
 
-type AtSpokeGroup = {
+type AtSpokeTeam = {
   id: string;
   name: string;
   slug: string;
@@ -153,8 +153,8 @@ export class APIClient {
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateGroups(
-    iteratee: ResourceIteratee<AtSpokeGroup>,
+  public async iterateTeams(
+    iteratee: ResourceIteratee<AtSpokeTeam>,
   ): Promise<void> {
     const pageSize = 25; //do not increase, b/c it will break when ai=true for atSpoke
     let recordsPulled = 0;
@@ -171,13 +171,13 @@ export class APIClient {
         paramsToPass,
       );
 
-      const groups: AtSpokeGroup[] = reply.results;
+      const teams: AtSpokeTeam[] = reply.results;
 
-      for (const group of groups) {
-        await iteratee(group);
+      for (const team of teams) {
+        await iteratee(team);
       }
 
-      if (groups.length < pageSize) { lastRecord = true; }
+      if (teams.length < pageSize) { lastRecord = true; }
       recordsPulled = recordsPulled + pageSize;
     }
   }

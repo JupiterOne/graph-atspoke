@@ -65,7 +65,7 @@ export async function fetchUsers({
   });
 }
 
-export async function fetchGroups({
+export async function fetchTeams({
   instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
@@ -73,28 +73,28 @@ export async function fetchGroups({
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
-  await apiClient.iterateGroups(async (group) => {
+  await apiClient.iterateTeams(async (team) => {
     const users: AtSpokeUser[] = [];
-    if (group.agentList) {
-      for (const agent of group.agentList) {
+    if (team.agentList) {
+      for (const agent of team.agentList) {
         users.push(agent.user);
       }
-      delete group.agentList;
+      delete team.agentList;
     }
     const groupEntity = await jobState.addEntity(
       createIntegrationEntity({
         entityData: {
-          source: group,
+          source: team,
           assign: {
             _type: 'at_spoke_team',
             _class: 'UserGroup',
-            _key: group.id,
-            email: group.email,
-            name: group.name,
-            displayName: group.name,
-            description: group.description,
-            org: group.org,
-            webLink: group.permalink,
+            _key: team.id,
+            email: team.email,
+            name: team.name,
+            displayName: team.name,
+            description: team.description,
+            org: team.org,
+            webLink: team.permalink,
           },
         },
       }),
@@ -134,11 +134,6 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Users',
     entities: [
       {
-        resourceName: 'atSpoke Account',
-        _type: 'at_spoke_account',
-        _class: 'Account',
-      },
-      {
         resourceName: 'atSpoke User',
         _type: 'at_spoke_user',
         _class: 'User',
@@ -156,19 +151,9 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     executionHandler: fetchUsers,
   },
   {
-    id: 'fetch-groups',
-    name: 'Fetch UserGroups',
+    id: 'fetch-teams',
+    name: 'Fetch Teams',
     entities: [
-      {
-        resourceName: 'atSpoke Account',
-        _type: 'at_spoke_account',
-        _class: 'Account',
-      },
-      {
-        resourceName: 'atSpoke User',
-        _type: 'at_spoke_user',
-        _class: 'User',
-      },
       {
         resourceName: 'atSpoke Team',
         _type: 'at_spoke_team',
@@ -196,6 +181,6 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
       },
     ],
     dependsOn: ['fetch-users'],
-    executionHandler: fetchGroups,
+    executionHandler: fetchTeams,
   },
 ];
