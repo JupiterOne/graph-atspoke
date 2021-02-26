@@ -111,19 +111,9 @@ export const requestSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Requests',
     entities: [
       {
-        resourceName: 'atSpoke Account',
-        _type: 'at_spoke_account',
-        _class: 'Account',
-      },
-      {
         resourceName: 'atSpoke Request',
         _type: 'at_spoke_request',
         _class: 'Record',
-      },
-      {
-        resourceName: 'atSpoke Request Type',
-        _type: 'at_spoke_requesttype',
-        _class: 'Configuration',
       },
     ],
     relationships: [
@@ -147,11 +137,6 @@ export const requestSteps: IntegrationStep<IntegrationConfig>[] = [
     id: 'fetch-request-types',
     name: 'Fetch Request Types',
     entities: [
-      {
-        resourceName: 'atSpoke Account',
-        _type: 'at_spoke_account',
-        _class: 'Account',
-      },
       {
         resourceName: 'atSpoke Request Type',
         _type: 'at_spoke_requesttype',

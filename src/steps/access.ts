@@ -162,12 +162,6 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     ],
     relationships: [
       {
-        _type: 'at_spoke_account_has_user',
-        _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_account',
-        targetType: 'at_spoke_user',
-      },
-      {
         _type: 'at_spoke_account_has_team',
         _class: RelationshipClass.HAS,
         sourceType: 'at_spoke_account',
