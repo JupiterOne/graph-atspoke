@@ -6,7 +6,7 @@ import { IntegrationConfig } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
-type AtSpokeUser = {
+export type AtSpokeUser = {
   id: string;
   displayName: string;
   email: string;
@@ -28,7 +28,7 @@ type AtSpokeGroup = {
   color: string;
   status: string;
   goals: object;
-  agentList: AtSpokeAgentListItem[];
+  agentList?: AtSpokeAgentListItem[];
   createdAt: string;
   updatedAt: string;
   owner: string;
@@ -36,7 +36,6 @@ type AtSpokeGroup = {
   email: string;
   permalink: string;
   settings?: object;
-  users?: Pick<AtSpokeUser, 'id'>[];
 };
 
 type AtSpokeAgentListItem = {
@@ -66,6 +65,7 @@ type AtSpokeRequest = {
   permalink: string;
   id: string;
   requestType?: string;
+  requestTypeInfo?: string;
   isAutoResolve: boolean;
   isFiled: boolean;
   email: string;
@@ -174,12 +174,6 @@ export class APIClient {
       const groups: AtSpokeGroup[] = reply.results;
 
       for (const group of groups) {
-        if (group.users === undefined) {
-          group.users = [];
-        }
-        for (const agent of group.agentList) {
-          group.users.push(agent.user);
-        }
         await iteratee(group);
       }
 

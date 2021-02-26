@@ -11,6 +11,7 @@ import {
 import { createAPIClient } from '../client';
 import { IntegrationConfig } from '../types';
 import { DATA_ACCOUNT_ENTITY } from './account';
+import { AtSpokeUser } from '../client';
 
 export async function fetchUsers({
   instance,
@@ -73,6 +74,13 @@ export async function fetchGroups({
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
   await apiClient.iterateGroups(async (group) => {
+    const users: AtSpokeUser[] = [];
+    if (group.agentList) {
+      for (const agent of group.agentList) {
+        users.push(agent.user);
+      }
+      delete group.agentList;
+    }
     const groupEntity = await jobState.addEntity(
       createIntegrationEntity({
         entityData: {
@@ -100,7 +108,7 @@ export async function fetchGroups({
       }),
     );
 
-    for (const user of group.users || []) {
+    for (const user of users || []) {
       const userEntity = await jobState.findEntity(user.id);
 
       if (!userEntity) {

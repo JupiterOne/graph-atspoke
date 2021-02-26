@@ -20,6 +20,9 @@ export async function fetchRequests({
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
   await apiClient.iterateRequests(async (request) => {
+    if (request.requestTypeInfo) {
+      delete request.requestTypeInfo;
+    }
     const requestEntity = await jobState.addEntity(
       createIntegrationEntity({
         entityData: {
