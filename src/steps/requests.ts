@@ -9,7 +9,7 @@ import {
 
 import { createAPIClient } from '../client';
 import { IntegrationConfig } from '../types';
-import { ACCOUNT_ENTITY_KEY } from './account';
+import { DATA_ACCOUNT_ENTITY } from './account';
 
 export async function fetchRequests({
   instance,
@@ -17,7 +17,7 @@ export async function fetchRequests({
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
-  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
+  const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
   await apiClient.iterateRequests(async (request) => {
     const requestEntity = await jobState.addEntity(
@@ -71,7 +71,7 @@ export async function fetchRequestTypes({
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
-  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
+  const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
   await apiClient.iterateRequestTypes(async (requestType) => {
     const requestTypeEntity = await jobState.addEntity(

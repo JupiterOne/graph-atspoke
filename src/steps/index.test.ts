@@ -116,7 +116,7 @@ test('should collect data', async () => {
   const webhooks = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('ApplicationEndpoint'),
   );
-  //expect(webhooks.length).toBeGreaterThan(0);
+  expect(webhooks.length).toBeGreaterThan(0);
   expect(webhooks).toMatchGraphObjectSchema({
     _class: ['ApplicationEndpoint'],
     schema: {

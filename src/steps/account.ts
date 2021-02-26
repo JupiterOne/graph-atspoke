@@ -7,7 +7,7 @@ import {
 import { IntegrationConfig } from '../types';
 import { createAPIClient } from '../client';
 
-export const ACCOUNT_ENTITY_KEY = 'at_spoke_account';
+export const DATA_ACCOUNT_ENTITY = 'DATA_ACCOUNT_ENTITY';
 
 export async function fetchAccountDetails({
   instance,
@@ -25,7 +25,7 @@ export async function fetchAccountDetails({
         },
         assign: {
           _key: `at-spoke-account:${instance.id}`,
-          _type: ACCOUNT_ENTITY_KEY,
+          _type: 'at_spoke_account',
           _class: 'Account',
           name,
           displayName: name,
@@ -35,7 +35,7 @@ export async function fetchAccountDetails({
     }),
   );
 
-  await jobState.setData(ACCOUNT_ENTITY_KEY, accountEntity);
+  await jobState.setData(DATA_ACCOUNT_ENTITY, accountEntity);
 }
 
 export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
@@ -45,7 +45,7 @@ export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke Account',
-        _type: ACCOUNT_ENTITY_KEY,
+        _type: 'at_spoke_account',
         _class: 'Account',
       },
     ],

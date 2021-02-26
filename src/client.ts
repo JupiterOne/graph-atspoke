@@ -215,8 +215,8 @@ export class APIClient {
   public async iterateRequests(
     iteratee: ResourceIteratee<AtSpokeRequest>,
   ): Promise<void> {
-    if (parseInt(this.config.numRequests) > 0) {
-      const recordsLimit = parseInt(this.config.numRequests);
+    const recordsLimit = parseNumRequests(this.config.numRequests);
+    if (recordsLimit > 0) {
       const pageSize = 100; //the max of the atSpoke v1 API
       let recordsPulled = 0;
       let lastRecord = false;
@@ -306,6 +306,24 @@ export class APIClient {
       });
     }
   }
+}
+
+export function parseNumRequests(str) {
+  let retValue;
+  try {
+    retValue = parseInt(str);
+  } catch (err) {
+    throw new IntegrationProviderAuthenticationError({
+      cause: err,
+      endpoint: "client.parseNumRequests",
+      status: err.status,
+      statusText: "There was a problem parsing the NUM_REQUESTS config field.",
+    });
+  }
+  if (isNaN(retValue)) { retValue = 0; }
+  if (retValue < 0) { retValue = 0; }
+  if (retValue > 1000*1000*1000) { retValue = 1000 * 1000 * 1000; }
+  return retValue;
 }
 
 export function createAPIClient(config: IntegrationConfig): APIClient {
