@@ -88,7 +88,7 @@ The following entities are created:
 | atSpoke User         | `at_spoke_user`        | `User`                |
 | atSpoke Team         | `at_spoke_team`        | `UserGroup`           |
 | atSpoke Webhook      | `at_spoke_webhook`     | `ApplicationEndpoint` |
-| atSpoke Request Type | `at_spoke_requesttype` | `Record`              |
+| atSpoke Request Type | `at_spoke_requesttype` | `Configuration`       |
 | atSpoke Request      | `at_spoke_request`     | `Record`              |
 
 ### Relationships
