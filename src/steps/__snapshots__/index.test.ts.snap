@@ -63,13 +63,6 @@ Object {
       "id": "602bebeeb9f1b80007da131c",
       "isEmailVerified": false,
       "isProfileCompleted": false,
-      "memberships": Array [
-        Object {
-          "org": "jupiteronedev",
-          "role": "MEMBER",
-          "status": "INVITED",
-        },
-      ],
       "name": "adam.williams@jupiterone.com",
       "status": undefined,
       "username": "adam.williams@jupiterone.com",
@@ -114,13 +107,6 @@ Object {
       "id": "602585518843b90007eeda34",
       "isEmailVerified": true,
       "isProfileCompleted": false,
-      "memberships": Array [
-        Object {
-          "org": "jupiteronedev",
-          "role": "MEMBER",
-          "status": "INVITED",
-        },
-      ],
       "name": "keitoshi.casey@gmail.com",
       "status": undefined,
       "username": "keitoshi.casey@gmail.com",
@@ -165,13 +151,6 @@ Object {
       "id": "601da2951d25d80007bf87d2",
       "isEmailVerified": true,
       "isProfileCompleted": true,
-      "memberships": Array [
-        Object {
-          "org": "jupiteronedev",
-          "role": "ADMIN",
-          "status": "ACTIVE",
-        },
-      ],
       "name": "Kevin Casey",
       "status": undefined,
       "username": "Kevin Casey",

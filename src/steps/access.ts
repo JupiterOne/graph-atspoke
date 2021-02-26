@@ -49,7 +49,6 @@ export async function fetchUsers({
             isEmailVerified: user.isEmailVerified,
             isProfileCompleted: user.isProfileCompleted,
             status: user.status,
-            memberships: user.memberships,
           },
         },
       }),
