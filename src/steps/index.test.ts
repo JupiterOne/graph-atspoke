@@ -30,6 +30,7 @@ test('should collect data', async () => {
   recording = setupSpokeRecording({
     directory: __dirname,
     name: 'steps',
+    redactedRequestHeaders: ['api-key'],
   });
 
   const context = createMockStepExecutionContext<IntegrationConfig>({

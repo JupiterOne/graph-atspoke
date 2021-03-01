@@ -31,7 +31,6 @@ export async function fetchRequests({
             _type: 'at_spoke_request',
             _class: 'Record',
             _key: request.id,
-            partial: true,
             name: request.subject,
             displayName: request.subject,
             webLink: request.permalink,
@@ -85,7 +84,6 @@ export async function fetchRequestTypes({
             _type: 'at_spoke_requesttype',
             _class: 'Configuration',
             _key: requestType.id,
-            partial: true,
             name: requestType.title,
             displayName: requestType.title,
             description: requestType.description,
@@ -114,6 +112,7 @@ export const requestSteps: IntegrationStep<IntegrationConfig>[] = [
         resourceName: 'atSpoke Request',
         _type: 'at_spoke_request',
         _class: 'Record',
+        partial: true,
       },
     ],
     relationships: [
@@ -141,6 +140,7 @@ export const requestSteps: IntegrationStep<IntegrationConfig>[] = [
         resourceName: 'atSpoke Request Type',
         _type: 'at_spoke_requesttype',
         _class: 'Configuration',
+        partial: true,
       },
     ],
     relationships: [
