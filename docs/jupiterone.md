@@ -10,13 +10,15 @@
 
 ## How it Works
 
-- JupiterOne periodically fetches users, teams, and webhooks from atSpoke to update the graph. Optionally, requests and request types are also fetched.
+- JupiterOne periodically fetches users, teams, and webhooks from atSpoke to
+  update the graph. Optionally, requests and request types are also fetched.
 - Write JupiterOne queries to review and monitor updates to the graph.
 - Configure alerts to take action when JupiterOne graph changes.
 
 ## Requirements
 
-- You need a Business or Enterprise level atSpoke account in order to create an API key for JupiterOne to access the system. 
+- You need a Business or Enterprise level atSpoke account in order to create an
+  API key for JupiterOne to access the system.
 - You must have permission in JupiterOne to install new integrations.
 
 ## Support
@@ -28,10 +30,12 @@ If you need help with this integration, please contact
 
 ### In atSpoke
 
-1. Log into atSpoke on a Business-level or Enterprise-level account (Teams-level accounts do not provide API functionality).
+1. Log into atSpoke on a Business-level or Enterprise-level account (Teams-level
+   accounts do not provide API functionality).
 2. Go to My Profile.
 3. Select the API tab.
-4. Generate a token at the bottom of the page. Note that you can only have one token for the whole atSpoke account, and it allows access to all things.
+4. Generate a token at the bottom of the page. Note that you can only have one
+   token for the whole atSpoke account, and it allows access to all things.
 
 ### In JupiterOne
 
@@ -46,16 +50,26 @@ If you need help with this integration, please contact
 6. Select a **Polling Interval** that you feel is sufficient for your monitoring
    needs. You may leave this as `DISABLED` and manually execute the integration.
 7. Enter the **atSpoke API Key** generated on the atSpoke site.
-8. Enter the number of **num atSpoke requests** according to your preference. See below for details on this feature. 
+8. Enter the number of **num atSpoke requests** according to your preference.
+   See below for details on this feature.
 9. Click **Create Configuration** once all values are provided.
 
 ### atSpoke Request Tracking
 
-Tracking atSpoke requests in the JupiterOne graph is optional. If you do not want to track requests and request-types, set **num atSpoke requests** to 0.
+Tracking atSpoke requests in the JupiterOne graph is optional. If you do not
+want to track requests and request-types, set **num atSpoke requests** to 0.
 
-Any number above 0 will tell JupiterOne to retrieve that many requests, starting with the most recently updated, at each polling interval. These requests will be Record entities in the JupiterOne graph, and the collection size will grow indefinitely (ie. old Records will not be deleted, unlike users, teams, and webhooks which only show current in the J1 graph). 
+Any number above 0 will tell JupiterOne to retrieve that many requests, starting
+with the most recently updated, at each polling interval. These requests will be
+Record entities in the JupiterOne graph, and the collection size will grow
+indefinitely (ie. old Records will not be deleted, unlike users, teams, and
+webhooks which only show current in the J1 graph).
 
-Consider setting this number to a value that correlates to the execution interval of the integration and the expected number of requests that would have been created/changed between executions. Setting it on the higher side of that estimate is not a problem (Records will not be duplicated), but setting it unnecessarily high could have performance impacts with frequent polling.
+Consider setting this number to a value that correlates to the execution
+interval of the integration and the expected number of requests that would have
+been created/changed between executions. Setting it on the higher side of that
+estimate is not a problem (Records will not be duplicated), but setting it
+unnecessarily high could have performance impacts with frequent polling.
 
 # How to Uninstall
 
@@ -85,11 +99,11 @@ The following entities are created:
 | Resources            | Entity `_type`         | Entity `_class`       |
 | -------------------- | ---------------------- | --------------------- |
 | atSpoke Account      | `at_spoke_account`     | `Account`             |
-| atSpoke User         | `at_spoke_user`        | `User`                |
-| atSpoke Team         | `at_spoke_team`        | `UserGroup`           |
-| atSpoke Webhook      | `at_spoke_webhook`     | `ApplicationEndpoint` |
-| atSpoke Request Type | `at_spoke_requesttype` | `Configuration`       |
 | atSpoke Request      | `at_spoke_request`     | `Record`              |
+| atSpoke Request Type | `at_spoke_requesttype` | `Configuration`       |
+| atSpoke Team         | `at_spoke_team`        | `UserGroup`           |
+| atSpoke User         | `at_spoke_user`        | `User`                |
+| atSpoke Webhook      | `at_spoke_webhook`     | `ApplicationEndpoint` |
 
 ### Relationships
 
@@ -97,13 +111,13 @@ The following relationships are created/mapped:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type`  |
 | --------------------- | --------------------- | ---------------------- |
-| `at_spoke_account`    | **HAS**               | `at_spoke_user`        |
-| `at_spoke_account`    | **HAS**               | `at_spoke_team`        |
-| `at_spoke_team`       | **HAS**               | `at_spoke_user`        |
-| `at_spoke_account`    | **HAS**               | `at_spoke_webhook`     |
-| `at_spoke_account`    | **HAS**               | `at_spoke_requesttype` |
 | `at_spoke_account`    | **HAS**               | `at_spoke_request`     |
+| `at_spoke_account`    | **HAS**               | `at_spoke_requesttype` |
+| `at_spoke_account`    | **HAS**               | `at_spoke_team`        |
+| `at_spoke_account`    | **HAS**               | `at_spoke_user`        |
+| `at_spoke_account`    | **HAS**               | `at_spoke_webhook`     |
 | `at_spoke_request`    | **HAS**               | `at_spoke_requesttype` |
+| `at_spoke_team`       | **HAS**               | `at_spoke_user`        |
 
 <!--
 ********************************************************************************
