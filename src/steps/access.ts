@@ -10,7 +10,8 @@ import {
 
 import { createAPIClient } from '../client';
 import { IntegrationConfig } from '../types';
-import { ACCOUNT_ENTITY_KEY } from './account';
+import { DATA_ACCOUNT_ENTITY } from './account';
+import { AtSpokeUser } from '../client';
 
 export async function fetchUsers({
   instance,
@@ -18,21 +19,37 @@ export async function fetchUsers({
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
-  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
+  const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
   await apiClient.iterateUsers(async (user) => {
+    //real names are optional for atSpoke users
+    let graphName;
+    if (user.displayName) {
+      graphName = user.displayName;
+    } else {
+      graphName = user.email;
+    }
+
+    //a weblink is not included in the API user object, but it exists and is derivable
+    //it is https://<accountEntity.org>.askspoke.com/users/user.id
+    const permalink = `https://${accountEntity.org}.askspoke.com/users/${user.id}`;
+
     const userEntity = await jobState.addEntity(
       createIntegrationEntity({
         entityData: {
           source: user,
           assign: {
-            _type: 'acme_user',
+            _type: 'at_spoke_user',
             _class: 'User',
-            username: 'testusername',
-            email: 'test@test.com',
-            // This is a custom property that is not a part of the data model class
-            // hierarchy. See: https://github.com/JupiterOne/data-model/blob/master/src/schemas/User.json
-            firstName: 'John',
+            _key: user.id,
+            username: graphName,
+            name: graphName,
+            displayName: graphName,
+            webLink: permalink,
+            email: user.email,
+            isEmailVerified: user.isEmailVerified,
+            isProfileCompleted: user.isProfileCompleted,
+            status: user.status,
           },
         },
       }),
@@ -48,26 +65,36 @@ export async function fetchUsers({
   });
 }
 
-export async function fetchGroups({
+export async function fetchTeams({
   instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
-  const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
+  const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
 
-  await apiClient.iterateGroups(async (group) => {
+  await apiClient.iterateTeams(async (team) => {
+    const users: AtSpokeUser[] = [];
+    if (team.agentList) {
+      for (const agent of team.agentList) {
+        users.push(agent.user);
+      }
+      delete team.agentList;
+    }
     const groupEntity = await jobState.addEntity(
       createIntegrationEntity({
         entityData: {
-          source: group,
+          source: team,
           assign: {
-            _type: 'acme_group',
+            _type: 'at_spoke_team',
             _class: 'UserGroup',
-            email: 'testgroup@test.com',
-            // This is a custom property that is not a part of the data model class
-            // hierarchy. See: https://github.com/JupiterOne/data-model/blob/master/src/schemas/UserGroup.json
-            logoLink: 'https://test.com/logo.png',
+            _key: team.id,
+            email: team.email,
+            name: team.name,
+            displayName: team.name,
+            description: team.description,
+            org: team.org,
+            webLink: team.permalink,
           },
         },
       }),
@@ -81,7 +108,7 @@ export async function fetchGroups({
       }),
     );
 
-    for (const user of group.users || []) {
+    for (const user of users || []) {
       const userEntity = await jobState.findEntity(user.id);
 
       if (!userEntity) {
@@ -107,32 +134,47 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Users',
     entities: [
       {
-        resourceName: 'Account',
-        _type: 'acme_account',
-        _class: 'Account',
+        resourceName: 'atSpoke User',
+        _type: 'at_spoke_user',
+        _class: 'User',
       },
     ],
     relationships: [
       {
-        _type: 'acme_account_has_user',
+        _type: 'at_spoke_account_has_user',
         _class: RelationshipClass.HAS,
-        sourceType: 'acme_account',
-        targetType: 'acme_user',
-      },
-      {
-        _type: 'acme_account_has_group',
-        _class: RelationshipClass.HAS,
-        sourceType: 'acme_account',
-        targetType: 'acme_group',
-      },
-      {
-        _type: 'acme_group_has_user',
-        _class: RelationshipClass.HAS,
-        sourceType: 'acme_group',
-        targetType: 'acme_user',
+        sourceType: 'at_spoke_account',
+        targetType: 'at_spoke_user',
       },
     ],
     dependsOn: ['fetch-account'],
     executionHandler: fetchUsers,
+  },
+  {
+    id: 'fetch-teams',
+    name: 'Fetch Teams',
+    entities: [
+      {
+        resourceName: 'atSpoke Team',
+        _type: 'at_spoke_team',
+        _class: 'UserGroup',
+      },
+    ],
+    relationships: [
+      {
+        _type: 'at_spoke_account_has_team',
+        _class: RelationshipClass.HAS,
+        sourceType: 'at_spoke_account',
+        targetType: 'at_spoke_team',
+      },
+      {
+        _type: 'at_spoke_team_has_user',
+        _class: RelationshipClass.HAS,
+        sourceType: 'at_spoke_team',
+        targetType: 'at_spoke_user',
+      },
+    ],
+    dependsOn: ['fetch-users'],
+    executionHandler: fetchTeams,
   },
 ];

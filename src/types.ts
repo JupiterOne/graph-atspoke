@@ -6,12 +6,16 @@ import { IntegrationInstanceConfig } from '@jupiterone/integration-sdk-core';
  */
 export interface IntegrationConfig extends IntegrationInstanceConfig {
   /**
-   * The provider API client ID used to authenticate requests.
+   * The provider API key used to authenticate requests.
    */
-  clientId: string;
-
+  apiKey: string;
   /**
-   * The provider API client secret used to authenticate requests.
+   * The number of recent requests to ingest.
+   *
+   * Requests are Record entities. The collection size will grow indefinitely. This allows for limiting the number
+   * of recently created/changed requests to ingest whenever the integration executes. This should be set to
+   * a value that correlates to the execution interval of the integration and the expected number of requests
+   * that would have been created/changed between executions.
    */
-  clientSecret: string;
+  numRequests: string;
 }
