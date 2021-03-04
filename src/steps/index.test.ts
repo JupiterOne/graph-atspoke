@@ -63,7 +63,7 @@ test('should collect data', async () => {
     schema: {
       additionalProperties: true,
       properties: {
-        _type: { const: 'at_spoke_account' },
+        _type: { const: 'atspoke_account' },
         manager: { type: 'string' },
         _rawData: {
           type: 'array',
@@ -83,7 +83,7 @@ test('should collect data', async () => {
     schema: {
       additionalProperties: true,
       properties: {
-        _type: { const: 'at_spoke_user' },
+        _type: { const: 'atspoke_user' },
         firstName: { type: 'string' },
         _rawData: {
           type: 'array',
@@ -103,7 +103,7 @@ test('should collect data', async () => {
     schema: {
       additionalProperties: true,
       properties: {
-        _type: { const: 'at_spoke_team' },
+        _type: { const: 'atspoke_team' },
         _rawData: {
           type: 'array',
           items: { type: 'object' },
@@ -123,7 +123,7 @@ test('should collect data', async () => {
     schema: {
       additionalProperties: true,
       properties: {
-        _type: { const: 'at_spoke_webhook' },
+        _type: { const: 'atspoke_webhook' },
         _rawData: {
           type: 'array',
           items: { type: 'object' },

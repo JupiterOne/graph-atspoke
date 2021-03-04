@@ -96,28 +96,28 @@ https://github.com/JupiterOne/sdk/blob/master/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources            | Entity `_type`         | Entity `_class`       |
-| -------------------- | ---------------------- | --------------------- |
-| atSpoke Account      | `at_spoke_account`     | `Account`             |
-| atSpoke Request      | `at_spoke_request`     | `Record`              |
-| atSpoke Request Type | `at_spoke_requesttype` | `Configuration`       |
-| atSpoke Team         | `at_spoke_team`        | `UserGroup`           |
-| atSpoke User         | `at_spoke_user`        | `User`                |
-| atSpoke Webhook      | `at_spoke_webhook`     | `ApplicationEndpoint` |
+| Resources            | Entity `_type`        | Entity `_class`       |
+| -------------------- | --------------------- | --------------------- |
+| atSpoke Account      | `atspoke_account`     | `Account`             |
+| atSpoke Request      | `atspoke_request`     | `Record`              |
+| atSpoke Request Type | `atspoke_requesttype` | `Configuration`       |
+| atSpoke Team         | `atspoke_team`        | `UserGroup`           |
+| atSpoke User         | `atspoke_user`        | `User`                |
+| atSpoke Webhook      | `atspoke_webhook`     | `ApplicationEndpoint` |
 
 ### Relationships
 
 The following relationships are created/mapped:
 
-| Source Entity `_type` | Relationship `_class` | Target Entity `_type`  |
-| --------------------- | --------------------- | ---------------------- |
-| `at_spoke_account`    | **HAS**               | `at_spoke_request`     |
-| `at_spoke_account`    | **HAS**               | `at_spoke_requesttype` |
-| `at_spoke_account`    | **HAS**               | `at_spoke_team`        |
-| `at_spoke_account`    | **HAS**               | `at_spoke_user`        |
-| `at_spoke_account`    | **HAS**               | `at_spoke_webhook`     |
-| `at_spoke_request`    | **HAS**               | `at_spoke_requesttype` |
-| `at_spoke_team`       | **HAS**               | `at_spoke_user`        |
+| Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
+| --------------------- | --------------------- | --------------------- |
+| `atspoke_account`     | **HAS**               | `atspoke_request`     |
+| `atspoke_account`     | **HAS**               | `atspoke_requesttype` |
+| `atspoke_account`     | **HAS**               | `atspoke_team`        |
+| `atspoke_account`     | **HAS**               | `atspoke_user`        |
+| `atspoke_account`     | **HAS**               | `atspoke_webhook`     |
+| `atspoke_request`     | **HAS**               | `atspoke_requesttype` |
+| `atspoke_team`        | **HAS**               | `atspoke_user`        |
 
 <!--
 ********************************************************************************
