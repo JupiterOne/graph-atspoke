@@ -25,7 +25,7 @@ export async function fetchWebhooks({
         entityData: {
           source: webhook,
           assign: {
-            _type: 'at_spoke_webhook',
+            _type: 'atspoke_webhook',
             _class: 'ApplicationEndpoint',
             _key: webhook.id,
             name: webhook.client,
@@ -59,16 +59,16 @@ export const webhookSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke Webhook',
-        _type: 'at_spoke_webhook',
+        _type: 'atspoke_webhook',
         _class: 'ApplicationEndpoint',
       },
     ],
     relationships: [
       {
-        _type: 'at_spoke_account_has_webhook',
+        _type: 'atspoke_account_has_webhook',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_account',
-        targetType: 'at_spoke_webhook',
+        sourceType: 'atspoke_account',
+        targetType: 'atspoke_webhook',
       },
     ],
     dependsOn: ['fetch-account'],

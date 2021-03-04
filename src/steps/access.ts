@@ -39,7 +39,7 @@ export async function fetchUsers({
         entityData: {
           source: user,
           assign: {
-            _type: 'at_spoke_user',
+            _type: 'atspoke_user',
             _class: 'User',
             _key: user.id,
             username: graphName,
@@ -86,7 +86,7 @@ export async function fetchTeams({
         entityData: {
           source: team,
           assign: {
-            _type: 'at_spoke_team',
+            _type: 'atspoke_team',
             _class: 'UserGroup',
             _key: team.id,
             email: team.email,
@@ -135,16 +135,16 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke User',
-        _type: 'at_spoke_user',
+        _type: 'atspoke_user',
         _class: 'User',
       },
     ],
     relationships: [
       {
-        _type: 'at_spoke_account_has_user',
+        _type: 'atspoke_account_has_user',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_account',
-        targetType: 'at_spoke_user',
+        sourceType: 'atspoke_account',
+        targetType: 'atspoke_user',
       },
     ],
     dependsOn: ['fetch-account'],
@@ -156,22 +156,22 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke Team',
-        _type: 'at_spoke_team',
+        _type: 'atspoke_team',
         _class: 'UserGroup',
       },
     ],
     relationships: [
       {
-        _type: 'at_spoke_account_has_team',
+        _type: 'atspoke_account_has_team',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_account',
-        targetType: 'at_spoke_team',
+        sourceType: 'atspoke_account',
+        targetType: 'atspoke_team',
       },
       {
-        _type: 'at_spoke_team_has_user',
+        _type: 'atspoke_team_has_user',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_team',
-        targetType: 'at_spoke_user',
+        sourceType: 'atspoke_team',
+        targetType: 'atspoke_user',
       },
     ],
     dependsOn: ['fetch-users'],

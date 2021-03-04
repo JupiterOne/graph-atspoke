@@ -28,7 +28,7 @@ export async function fetchRequests({
         entityData: {
           source: request,
           assign: {
-            _type: 'at_spoke_request',
+            _type: 'atspoke_request',
             _class: 'Record',
             _key: request.id,
             name: request.subject,
@@ -81,7 +81,7 @@ export async function fetchRequestTypes({
         entityData: {
           source: requestType,
           assign: {
-            _type: 'at_spoke_requesttype',
+            _type: 'atspoke_requesttype',
             _class: 'Configuration',
             _key: requestType.id,
             name: requestType.title,
@@ -110,23 +110,23 @@ export const requestSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke Request',
-        _type: 'at_spoke_request',
+        _type: 'atspoke_request',
         _class: 'Record',
         partial: true,
       },
     ],
     relationships: [
       {
-        _type: 'at_spoke_account_has_request',
+        _type: 'atspoke_account_has_request',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_account',
-        targetType: 'at_spoke_request',
+        sourceType: 'atspoke_account',
+        targetType: 'atspoke_request',
       },
       {
-        _type: 'at_spoke_request_has_requesttype',
+        _type: 'atspoke_request_has_requesttype',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_request',
-        targetType: 'at_spoke_requesttype',
+        sourceType: 'atspoke_request',
+        targetType: 'atspoke_requesttype',
       },
     ],
     dependsOn: ['fetch-request-types'],
@@ -138,17 +138,17 @@ export const requestSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke Request Type',
-        _type: 'at_spoke_requesttype',
+        _type: 'atspoke_requesttype',
         _class: 'Configuration',
         partial: true,
       },
     ],
     relationships: [
       {
-        _type: 'at_spoke_account_has_requesttype',
+        _type: 'atspoke_account_has_requesttype',
         _class: RelationshipClass.HAS,
-        sourceType: 'at_spoke_account',
-        targetType: 'at_spoke_requesttype',
+        sourceType: 'atspoke_account',
+        targetType: 'atspoke_requesttype',
       },
     ],
     dependsOn: ['fetch-account'],

@@ -25,7 +25,7 @@ export async function fetchAccountDetails({
         },
         assign: {
           _key: `at-spoke-account:${instance.id}`,
-          _type: 'at_spoke_account',
+          _type: 'atspoke_account',
           _class: 'Account',
           name,
           displayName: name,
@@ -45,7 +45,7 @@ export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [
       {
         resourceName: 'atSpoke Account',
-        _type: 'at_spoke_account',
+        _type: 'atspoke_account',
         _class: 'Account',
       },
     ],
