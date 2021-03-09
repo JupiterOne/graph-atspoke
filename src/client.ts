@@ -69,6 +69,8 @@ type AtSpokeRequest = {
   isAutoResolve: boolean;
   isFiled: boolean;
   email: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 type AtSpokeRequestType = {
@@ -133,7 +135,7 @@ export class APIClient {
         },
       };
       const reply = await this.contactAPI(
-        'https://api.askspoke.com/api/v1/users', 
+        'https://api.askspoke.com/api/v1/users',
         paramsToPass,
       );
 
@@ -143,7 +145,9 @@ export class APIClient {
         await iteratee(user);
       }
 
-      if (users.length < pageSize) { lastRecord = true; }
+      if (users.length < pageSize) {
+        lastRecord = true;
+      }
       recordsPulled = recordsPulled + pageSize;
     }
   }
@@ -177,7 +181,9 @@ export class APIClient {
         await iteratee(team);
       }
 
-      if (teams.length < pageSize) { lastRecord = true; }
+      if (teams.length < pageSize) {
+        lastRecord = true;
+      }
       recordsPulled = recordsPulled + pageSize;
     }
   }
@@ -209,36 +215,48 @@ export class APIClient {
   public async iterateRequests(
     iteratee: ResourceIteratee<AtSpokeRequest>,
   ): Promise<void> {
-    const recordsLimit = parseNumRequests(this.config.numRequests);
-    if (recordsLimit > 0) {
+    const requestsLimit = parseNumRequests(this.config.numRequests);
+    if (requestsLimit > 0) {
       const pageSize = 100; //the max of the atSpoke v1 API
-      let recordsPulled = 0;
-      let lastRecord = false;
-      while ((recordsPulled < recordsLimit) && (!lastRecord)) {
-        let recordsToPull = pageSize;
-        if ((recordsLimit - recordsPulled) < (pageSize)) {
-          recordsToPull = recordsLimit - recordsPulled;;
+      let requestsPulled = 0;
+      let lastRequest = false;
+      while (requestsPulled < requestsLimit && !lastRequest) {
+        let requestsToPull = pageSize;
+        if (requestsLimit - requestsPulled < pageSize) {
+          requestsToPull = requestsLimit - requestsPulled;
         }
         const paramsToPass = {
           params: {
-            start: recordsPulled, //starting index of requests. 0 is most recent.
-            limit: recordsToPull,
+            start: requestsPulled, //starting index of requests. 0 is most recent.
+            limit: requestsToPull,
             status: 'OPEN,RESOLVED,PENDING,LOCKED,AUTO_RESOLVED', //pulls only OPEN by default
           },
         };
-  
+
         const reply = await this.contactAPI(
           'https://api.askspoke.com/api/v1/requests',
           paramsToPass,
         );
-  
+
         const requests: AtSpokeRequest[] = reply.results;
-  
+
+        // termination conditions for while loop governing this batch of requests
+        if (requests.length < pageSize) {
+          lastRequest = true;
+        } //we got all the requests in the system
+        if (requestsToPull < pageSize) {
+          lastRequest = true;
+        } //we got all the requests we want
+        const lastRequestUpdatedAt = 0;
+        const lastexecutiontime = 1;
+        if (lastRequestUpdatedAt > lastexecutiontime) {
+          lastRequest = true;
+        }
+
         for (const request of requests) {
           await iteratee(request);
         }
-        if (requests.length < pageSize) { lastRecord = true; }
-        recordsPulled = recordsPulled + pageSize;
+        requestsPulled = requestsPulled + requestsToPull;
       }
     }
   }
@@ -251,9 +269,8 @@ export class APIClient {
   public async iterateRequestTypes(
     iteratee: ResourceIteratee<AtSpokeRequestType>,
   ): Promise<void> {
-
     if (parseInt(this.config.numRequests) > 0) {
-      const pageSize = 25; 
+      const pageSize = 25;
       let recordsPulled = 0;
       let lastRecord = false;
       while (!lastRecord) {
@@ -273,7 +290,9 @@ export class APIClient {
         for (const requestType of requestTypes) {
           await iteratee(requestType);
         }
-        if (requestTypes.length < pageSize) { lastRecord = true; }
+        if (requestTypes.length < pageSize) {
+          lastRecord = true;
+        }
         recordsPulled = recordsPulled + pageSize;
       }
     }
@@ -309,14 +328,20 @@ export function parseNumRequests(str) {
   } catch (err) {
     throw new IntegrationProviderAuthenticationError({
       cause: err,
-      endpoint: "client.parseNumRequests",
+      endpoint: 'client.parseNumRequests',
       status: err.status,
-      statusText: "There was a problem parsing the NUM_REQUESTS config field.",
+      statusText: 'There was a problem parsing the NUM_REQUESTS config field.',
     });
   }
-  if (isNaN(retValue)) { retValue = 0; }
-  if (retValue < 0) { retValue = 0; }
-  if (retValue > 1000*1000*1000) { retValue = 1000 * 1000 * 1000; }
+  if (isNaN(retValue)) {
+    retValue = 0;
+  }
+  if (retValue < 0) {
+    retValue = 0;
+  }
+  if (retValue > 1000 * 1000 * 1000) {
+    retValue = 1000 * 1000 * 1000;
+  }
   return retValue;
 }
 
