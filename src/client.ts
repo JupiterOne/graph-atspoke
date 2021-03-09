@@ -1,6 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import {
+  IntegrationProviderAuthenticationError,
+  validateRawData,
+} from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './types';
 
@@ -247,11 +250,14 @@ export class APIClient {
         if (requestsToPull < pageSize) {
           lastRequest = true;
         } //we got all the requests we want
-        const lastRequestUpdatedAt = 0;
-        const lastexecutiontime = 1;
-        if (lastRequestUpdatedAt > lastexecutiontime) {
+        const lastRequestUpdatedAt = new Date(
+          requests[requests.length - 1].updatedAt,
+        );
+        const lastexecutiontime = 1; // get it
+        console.log(`Last request time is ${lastRequestUpdatedAt}`);
+        if (lastRequestUpdatedAt.getTime() < lastexecutiontime) {
           lastRequest = true;
-        }
+        } //last request pulled is older than the last execution time, so that's enough
 
         for (const request of requests) {
           await iteratee(request);
