@@ -1,9 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
-import {
-  IntegrationProviderAuthenticationError,
-  validateRawData,
-} from '@jupiterone/integration-sdk-core';
+import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './types';
 
@@ -216,6 +213,7 @@ export class APIClient {
    * @param iteratee receives each resource to produce entities/relationships
    */
   public async iterateRequests(
+    lastExecutionTime: number,
     iteratee: ResourceIteratee<AtSpokeRequest>,
   ): Promise<void> {
     const requestsLimit = parseNumRequests(this.config.numRequests);
@@ -253,9 +251,7 @@ export class APIClient {
         const lastRequestUpdatedAt = new Date(
           requests[requests.length - 1].updatedAt,
         );
-        const lastexecutiontime = 1; // get it
-        console.log(`Last request time is ${lastRequestUpdatedAt}`);
-        if (lastRequestUpdatedAt.getTime() < lastexecutiontime) {
+        if (lastRequestUpdatedAt.getTime() < lastExecutionTime) {
           lastRequest = true;
         } //last request pulled is older than the last execution time, so that's enough
 
