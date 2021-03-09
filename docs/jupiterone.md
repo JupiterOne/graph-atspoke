@@ -65,11 +65,10 @@ Record entities in the JupiterOne graph, and the collection size will grow
 indefinitely (ie. old Records will not be deleted, unlike users, teams, and
 webhooks which only show current in the J1 graph).
 
-Consider setting this number to a value that correlates to the execution
-interval of the integration and the expected number of requests that would have
-been created/changed between executions. Setting it on the higher side of that
-estimate is not a problem (Records will not be duplicated), but setting it
-unnecessarily high could have performance impacts with frequent polling.
+Consider setting this number to a value a little higher than the number of
+requests typically expected for your **Polling Interval**. If in doubt, go high.
+JupiterOne will stop polling for requests once it reaches any older than the
+last successful date of polling.
 
 # How to Uninstall
 
