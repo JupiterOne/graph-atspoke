@@ -235,20 +235,16 @@ export class APIClient {
 
       const requests: AtSpokeRequest[] = reply.results;
 
-      // termination conditions for while loop governing this batch of requests
-      if (requests.length < pageSize) {
-        lastRequest = true;
-      } //we got all the requests in the system
-      const lastRequestUpdatedAt = new Date(
-        requests[requests.length - 1].updatedAt,
-      );
-      if (lastRequestUpdatedAt.getTime() < lastExecutionTime) {
-        lastRequest = true;
-      } //last request pulled is older than the last execution time, so don't pull anymore pages
-
       for (const request of requests) {
         await iteratee(request);
       }
+
+      if (requests.length < pageSize) {
+        lastRequest = true;
+      } //we got all the requests in the system
+      if (stopFetchingRequests(requests, lastExecutionTime)) {
+        lastRequest = true;
+      } //we got enough requests to cover to the last integration execution time
       requestsPulled = requestsPulled + pageSize;
     }
   }
@@ -311,28 +307,26 @@ export class APIClient {
   }
 }
 
-export function parseNumRequests(str) {
-  let retValue;
-  try {
-    retValue = parseInt(str);
-  } catch (err) {
-    throw new IntegrationProviderAuthenticationError({
-      cause: err,
-      endpoint: 'client.parseNumRequests',
-      status: err.status,
-      statusText: 'There was a problem parsing the NUM_REQUESTS config field.',
-    });
+export function stopFetchingRequests(requests, lastExecutionTime) {
+  if (requests.length == 0) {
+    return true; //no requests, so we are done
   }
-  if (isNaN(retValue)) {
-    retValue = 0;
+  if (!requests[requests.length - 1].updatedAt) {
+    return false; //this shouldn't happen, but in case API screws up and gives undef or 0, we'll keep going
   }
-  if (retValue < 0) {
-    retValue = 0;
-  }
-  if (retValue > 1000 * 1000 * 1000) {
-    retValue = 1000 * 1000 * 1000;
-  }
-  return retValue;
+  const lastRequestUpdatedAt = new Date(
+    requests[requests.length - 1].updatedAt,
+  );
+  if (lastRequestUpdatedAt.getTime() < lastExecutionTime) {
+    return true;
+  } //last request pulled is older than the last execution time, so don't fetch any more pages of requests
+  if (
+    lastRequestUpdatedAt.getTime() <
+    new Date().getTime() - 14 * 24 * 60 * 60 * 1000
+  ) {
+    return true;
+  } //if we're back more than 14 days, you can stop fetching pages of requests no matter what
+  return false;
 }
 
 export function createAPIClient(config: IntegrationConfig): APIClient {
