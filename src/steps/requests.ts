@@ -20,7 +20,8 @@ export async function fetchRequests({
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
   const lastExecutionTime: number =
-    executionHistory.lastSuccessful?.startedOn || 0;
+    executionHistory.lastSuccessful?.startedOn ||
+    new Date().getTime() - 14 * 24 * 60 * 60 * 1000;
 
   await apiClient.iterateRequests(lastExecutionTime, async (request) => {
     if (request.requestTypeInfo) {
