@@ -11,11 +11,9 @@ import { fetchRequests } from './requests';
 import { fetchWebhooks } from './webhooks';
 
 const DEFAULT_API_KEY = 'fake_api_key'; // works because we have a recording now
-const DEFAULT_API_REQUESTS = '5';
 
 const integrationConfig: IntegrationConfig = {
   apiKey: process.env.API_KEY || DEFAULT_API_KEY,
-  numRequests: process.env.NUM_REQUESTS || DEFAULT_API_REQUESTS,
 };
 
 jest.setTimeout(1000 * 60 * 1);

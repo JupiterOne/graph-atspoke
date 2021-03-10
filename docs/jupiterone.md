@@ -50,25 +50,19 @@ If you need help with this integration, please contact
 6. Select a **Polling Interval** that you feel is sufficient for your monitoring
    needs. You may leave this as `DISABLED` and manually execute the integration.
 7. Enter the **atSpoke API Key** generated on the atSpoke site.
-8. Enter the number of **num atSpoke requests** according to your preference.
-   See below for details on this feature.
-9. Click **Create Configuration** once all values are provided.
+8. Click **Create Configuration** once all values are provided.
 
 ### atSpoke Request Tracking
 
-Tracking atSpoke requests in the JupiterOne graph is optional. If you do not
-want to track requests and request-types, set **num atSpoke requests** to 0.
+When the integration runs, the JupiterOne graph will request the most recent 100
+atSpoke requests. If there are more than 100 requests available and the first
+100 are not enough to establish at least 14 days of history, JupiterOne will
+keep collecting requests in batches of 100 until 14 days of history are
+established or all requests are gathered.
 
-Any number above 0 will tell JupiterOne to retrieve that many requests, starting
-with the most recently updated, at each polling interval. These requests will be
-Record entities in the JupiterOne graph, and the collection size will grow
-indefinitely (ie. old Records will not be deleted, unlike users, teams, and
-webhooks which only show current in the J1 graph).
-
-Consider setting this number to a value a little higher than the number of
-requests typically expected for your **Polling Interval**. If in doubt, go high.
-JupiterOne will stop polling for requests once it reaches any older than the
-last successful date of polling.
+These requests will be Record entities in the JupiterOne graph, and the
+collection size will grow indefinitely (ie. old Records will not be deleted,
+unlike users, teams, and webhooks which only show current in the J1 graph).
 
 # How to Uninstall
 

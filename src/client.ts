@@ -216,50 +216,40 @@ export class APIClient {
     lastExecutionTime: number,
     iteratee: ResourceIteratee<AtSpokeRequest>,
   ): Promise<void> {
-    const requestsLimit = parseNumRequests(this.config.numRequests);
-    if (requestsLimit > 0) {
-      const pageSize = 100; //the max of the atSpoke v1 API
-      let requestsPulled = 0;
-      let lastRequest = false;
-      while (requestsPulled < requestsLimit && !lastRequest) {
-        let requestsToPull = pageSize;
-        if (requestsLimit - requestsPulled < pageSize) {
-          requestsToPull = requestsLimit - requestsPulled;
-        }
-        const paramsToPass = {
-          params: {
-            start: requestsPulled, //starting index of requests. 0 is most recent.
-            limit: requestsToPull,
-            status: 'OPEN,RESOLVED,PENDING,LOCKED,AUTO_RESOLVED', //pulls only OPEN by default
-          },
-        };
+    const pageSize = 100; //the max of the atSpoke v1 API
+    let requestsPulled = 0;
+    let lastRequest = false;
+    while (!lastRequest) {
+      const paramsToPass = {
+        params: {
+          start: requestsPulled, //starting index of requests. 0 is most recent.
+          limit: pageSize,
+          status: 'OPEN,RESOLVED,PENDING,LOCKED,AUTO_RESOLVED', //pulls only OPEN by default
+        },
+      };
 
-        const reply = await this.contactAPI(
-          'https://api.askspoke.com/api/v1/requests',
-          paramsToPass,
-        );
+      const reply = await this.contactAPI(
+        'https://api.askspoke.com/api/v1/requests',
+        paramsToPass,
+      );
 
-        const requests: AtSpokeRequest[] = reply.results;
+      const requests: AtSpokeRequest[] = reply.results;
 
-        // termination conditions for while loop governing this batch of requests
-        if (requests.length < pageSize) {
-          lastRequest = true;
-        } //we got all the requests in the system
-        if (requestsToPull < pageSize) {
-          lastRequest = true;
-        } //we got all the requests we want
-        const lastRequestUpdatedAt = new Date(
-          requests[requests.length - 1].updatedAt,
-        );
-        if (lastRequestUpdatedAt.getTime() < lastExecutionTime) {
-          lastRequest = true;
-        } //last request pulled is older than the last execution time, so that's enough
+      // termination conditions for while loop governing this batch of requests
+      if (requests.length < pageSize) {
+        lastRequest = true;
+      } //we got all the requests in the system
+      const lastRequestUpdatedAt = new Date(
+        requests[requests.length - 1].updatedAt,
+      );
+      if (lastRequestUpdatedAt.getTime() < lastExecutionTime) {
+        lastRequest = true;
+      } //last request pulled is older than the last execution time, so don't pull anymore pages
 
-        for (const request of requests) {
-          await iteratee(request);
-        }
-        requestsPulled = requestsPulled + requestsToPull;
+      for (const request of requests) {
+        await iteratee(request);
       }
+      requestsPulled = requestsPulled + pageSize;
     }
   }
 
@@ -271,32 +261,30 @@ export class APIClient {
   public async iterateRequestTypes(
     iteratee: ResourceIteratee<AtSpokeRequestType>,
   ): Promise<void> {
-    if (parseInt(this.config.numRequests) > 0) {
-      const pageSize = 25;
-      let recordsPulled = 0;
-      let lastRecord = false;
-      while (!lastRecord) {
-        const paramsToPass = {
-          params: {
-            start: recordsPulled, //starting index. 0 is most recent.
-            limit: pageSize,
-          },
-        };
-        const reply = await this.contactAPI(
-          'https://api.askspoke.com/api/v1/request_types',
-          paramsToPass,
-        );
+    const pageSize = 25;
+    let recordsPulled = 0;
+    let lastRecord = false;
+    while (!lastRecord) {
+      const paramsToPass = {
+        params: {
+          start: recordsPulled, //starting index. 0 is most recent.
+          limit: pageSize,
+        },
+      };
+      const reply = await this.contactAPI(
+        'https://api.askspoke.com/api/v1/request_types',
+        paramsToPass,
+      );
 
-        const requestTypes: AtSpokeRequestType[] = reply.results;
+      const requestTypes: AtSpokeRequestType[] = reply.results;
 
-        for (const requestType of requestTypes) {
-          await iteratee(requestType);
-        }
-        if (requestTypes.length < pageSize) {
-          lastRecord = true;
-        }
-        recordsPulled = recordsPulled + pageSize;
+      for (const requestType of requestTypes) {
+        await iteratee(requestType);
       }
+      if (requestTypes.length < pageSize) {
+        lastRecord = true;
+      }
+      recordsPulled = recordsPulled + pageSize;
     }
   }
 

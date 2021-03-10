@@ -5,9 +5,6 @@ const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
     type: 'string',
     mask: true,
   },
-  numRequests: {
-    type: 'string',
-  },
 };
 
 export default instanceConfigFields;
