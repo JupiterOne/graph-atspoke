@@ -9,6 +9,8 @@ import { fetchTeams, fetchUsers } from './access';
 import { fetchAccountDetails } from './account';
 import { fetchRequests } from './requests';
 import { fetchWebhooks } from './webhooks';
+import { stopFetchingRequests } from '../client';
+import { AtSpokeRequest } from '../client';
 
 const DEFAULT_API_KEY = 'fake_api_key'; // works because we have a recording now
 
@@ -130,4 +132,141 @@ test('should collect data', async () => {
       required: [],
     },
   });
+});
+
+test('stopFetchingRequests', () => {
+  const requests: AtSpokeRequest[] = [];
+  let lastExecutionTime = 0;
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+
+  const fakeRequest: AtSpokeRequest = {
+    subject: 'Tough stuff',
+    requester: 'Somebody',
+    owner: 'Nobody',
+    status: 'OPEN',
+    privacyLevel: 'high',
+    team: 'winners',
+    org: 'Team Co.',
+    permalink: 'not applicable',
+    id: '333333333333',
+    isAutoResolve: false,
+    isFiled: true,
+    email: 'help@help.com',
+    createdAt: new Date().toDateString(),
+    updatedAt: new Date().toDateString(),
+  };
+  requests.push(fakeRequest);
+  //last request is not older than 14 days or exTime
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+
+  const fakeRequest2: AtSpokeRequest = {
+    subject: 'Tough stuff',
+    requester: 'Somebody',
+    owner: 'Nobody',
+    status: 'OPEN',
+    privacyLevel: 'high',
+    team: 'winners',
+    org: 'Team Co.',
+    permalink: 'not applicable',
+    id: '333333333333',
+    isAutoResolve: false,
+    isFiled: true,
+    email: 'help@help.com',
+    createdAt: new Date().toDateString(),
+    updatedAt: '',
+  };
+  requests.push(fakeRequest2);
+  //last request has a falsy updated time, we should keep going
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+
+  const fakeRequest3: AtSpokeRequest = {
+    subject: 'Tough stuff',
+    requester: 'Somebody',
+    owner: 'Nobody',
+    status: 'OPEN',
+    privacyLevel: 'high',
+    team: 'winners',
+    org: 'Team Co.',
+    permalink: 'not applicable',
+    id: '333333333333',
+    isAutoResolve: false,
+    isFiled: true,
+    email: 'help@help.com',
+    createdAt: new Date().toDateString(),
+    updatedAt: new Date(1999, 12, 31).toDateString(),
+  };
+  requests.push(fakeRequest3);
+  //last request has a very old updated time, we should quit
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+
+  const fakeRequest4: AtSpokeRequest = {
+    subject: 'Tough stuff',
+    requester: 'Somebody',
+    owner: 'Nobody',
+    status: 'OPEN',
+    privacyLevel: 'high',
+    team: 'winners',
+    org: 'Team Co.',
+    permalink: 'not applicable',
+    id: '333333333333',
+    isAutoResolve: false,
+    isFiled: true,
+    email: 'help@help.com',
+    createdAt: new Date().toDateString(),
+    updatedAt: new Date(
+      new Date().getTime() - 2 * 24 * 60 * 60 * 1000,
+    ).toDateString(),
+  };
+  requests.push(fakeRequest4);
+  lastExecutionTime = new Date(
+    new Date().getTime() - 1 * 24 * 60 * 60 * 1000,
+  ).getTime();
+  //last request has a recent time from 2 days ago, but execution is just 1 day ago, we should quit
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+
+  const fakeRequest5: AtSpokeRequest = {
+    subject: 'Tough stuff',
+    requester: 'Somebody',
+    owner: 'Nobody',
+    status: 'OPEN',
+    privacyLevel: 'high',
+    team: 'winners',
+    org: 'Team Co.',
+    permalink: 'not applicable',
+    id: '333333333333',
+    isAutoResolve: false,
+    isFiled: true,
+    email: 'help@help.com',
+    createdAt: new Date().toDateString(),
+    updatedAt: new Date(
+      new Date().getTime() - 13 * 24 * 60 * 60 * 1000,
+    ).toDateString(),
+  };
+  requests.push(fakeRequest5);
+  lastExecutionTime = 0;
+  //last request has a recent time from 13 days ago, no Extime, since default is 14 day cutoff, keep going
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+
+  const fakeRequest6: AtSpokeRequest = {
+    subject: 'Tough stuff',
+    requester: 'Somebody',
+    owner: 'Nobody',
+    status: 'OPEN',
+    privacyLevel: 'high',
+    team: 'winners',
+    org: 'Team Co.',
+    permalink: 'not applicable',
+    id: '333333333333',
+    isAutoResolve: false,
+    isFiled: true,
+    email: 'help@help.com',
+    createdAt: new Date().toDateString(),
+    updatedAt: new Date(
+      new Date().getTime() - 15 * 24 * 60 * 60 * 1000,
+    ).toDateString(),
+  };
+  requests.push(fakeRequest6);
+  lastExecutionTime = 0;
+  //last request has a recent time from 15 days ago, no Extime, since default is 14 day cutoff, quit
+  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
 });

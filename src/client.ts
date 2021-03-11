@@ -54,7 +54,7 @@ type AtSpokeWebhook = {
   id: string;
 };
 
-type AtSpokeRequest = {
+export type AtSpokeRequest = {
   subject: string;
   requester: string;
   owner: string;
