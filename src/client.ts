@@ -307,19 +307,23 @@ export class APIClient {
   }
 }
 
-export function stopFetchingRequests(requests, lastExecutionTime) {
+export function stopFetchingRequests(
+  requests: AtSpokeRequest[],
+  lastExecutionTime: number,
+): boolean {
   if (requests.length == 0) {
     return true; //no requests, so we are done
   }
   if (!requests[requests.length - 1].updatedAt) {
-    return false; //this shouldn't happen, but in case API screws up and gives undef or 0, we'll keep going
+    return true; //this shouldn't happen, but in case API screws up and gives undef or 0, we'll keep going
   }
-  const lastRequestUpdatedAt = new Date(
+  const lastRequestUpdatedAt: Date = new Date(
     requests[requests.length - 1].updatedAt,
   );
-  if (lastRequestUpdatedAt.getTime() < lastExecutionTime) {
+  if (!(lastRequestUpdatedAt.getTime() > lastExecutionTime)) {
     return true;
-  } //last request pulled is older than the last execution time, so don't fetch any more pages of requests
+  } //last request pulled is not younger than the last execution time, so don't fetch any more pages of requests
+  // also covers invalid strings for updatedAt, which return NaN on .getTime()
   if (
     lastRequestUpdatedAt.getTime() <
     new Date().getTime() - 14 * 24 * 60 * 60 * 1000

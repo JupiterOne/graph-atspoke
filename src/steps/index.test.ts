@@ -44,6 +44,10 @@ test('should collect data', async () => {
   await fetchTeams(context);
   await fetchWebhooks(context);
   await fetchRequests(context);
+  //because fetchRequests only goes back 14 days, you might expect this fetch
+  //to fail on the old recording in the test suite, but fetchRequests always
+  //pulls the first page of requests regardless, which is enough for the
+  //half dozen requests in the test recording
 
   // Review snapshot, failure is a regression
   expect({
@@ -113,7 +117,7 @@ test('should collect data', async () => {
     },
   });
 
-  //webhooks and requests are optional and won't exist on all accts
+  //webhooks and requests won't exist on all accts
   const webhooks = context.jobState.collectedEntities.filter((e) =>
     e._class.includes('ApplicationEndpoint'),
   );
@@ -134,12 +138,10 @@ test('should collect data', async () => {
   });
 });
 
-test('stopFetchingRequests', () => {
+describe('stopFetchingRequests', () => {
   const requests: AtSpokeRequest[] = [];
-  let lastExecutionTime = 0;
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
-
-  const fakeRequest: AtSpokeRequest = {
+  let lastExecutionTime = 0; //beginning of epoch
+  const templateRequest: AtSpokeRequest = {
     subject: 'Tough stuff',
     requester: 'Somebody',
     owner: 'Nobody',
@@ -152,121 +154,55 @@ test('stopFetchingRequests', () => {
     isAutoResolve: false,
     isFiled: true,
     email: 'help@help.com',
-    createdAt: new Date().toDateString(),
-    updatedAt: new Date().toDateString(),
+    createdAt: new Date().toDateString(), //today, right now
+    updatedAt: new Date().toDateString(), //today, right now
   };
-  requests.push(fakeRequest);
-  //last request is not older than 14 days or exTime
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+  function getTimeDaysAgo(daysAgo: number): number {
+    return new Date().getTime() - daysAgo * 24 * 60 * 60 * 1000;
+  }
+  function getDaysAgoDateString(daysAgo: number): string {
+    return new Date(getTimeDaysAgo(daysAgo)).toDateString();
+  }
 
-  const fakeRequest2: AtSpokeRequest = {
-    subject: 'Tough stuff',
-    requester: 'Somebody',
-    owner: 'Nobody',
-    status: 'OPEN',
-    privacyLevel: 'high',
-    team: 'winners',
-    org: 'Team Co.',
-    permalink: 'not applicable',
-    id: '333333333333',
-    isAutoResolve: false,
-    isFiled: true,
-    email: 'help@help.com',
-    createdAt: new Date().toDateString(),
-    updatedAt: '',
-  };
-  requests.push(fakeRequest2);
-  //last request has a falsy updated time, we should keep going
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+  test('no requests in page', () => {
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  });
 
-  const fakeRequest3: AtSpokeRequest = {
-    subject: 'Tough stuff',
-    requester: 'Somebody',
-    owner: 'Nobody',
-    status: 'OPEN',
-    privacyLevel: 'high',
-    team: 'winners',
-    org: 'Team Co.',
-    permalink: 'not applicable',
-    id: '333333333333',
-    isAutoResolve: false,
-    isFiled: true,
-    email: 'help@help.com',
-    createdAt: new Date().toDateString(),
-    updatedAt: new Date(1999, 12, 31).toDateString(),
-  };
-  requests.push(fakeRequest3);
-  //last request has a very old updated time, we should quit
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  test('lastExecutionTime 0 ingests max age', () => {
+    templateRequest.updatedAt = getDaysAgoDateString(13);
+    requests.push(templateRequest);
+    lastExecutionTime = 0;
+    //last request is not older than 14 days or exTime, so do not stop
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+    templateRequest.updatedAt = getDaysAgoDateString(15);
+    requests.push(templateRequest);
+    //last request is older than 14 days, so stop
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  });
 
-  const fakeRequest4: AtSpokeRequest = {
-    subject: 'Tough stuff',
-    requester: 'Somebody',
-    owner: 'Nobody',
-    status: 'OPEN',
-    privacyLevel: 'high',
-    team: 'winners',
-    org: 'Team Co.',
-    permalink: 'not applicable',
-    id: '333333333333',
-    isAutoResolve: false,
-    isFiled: true,
-    email: 'help@help.com',
-    createdAt: new Date().toDateString(),
-    updatedAt: new Date(
-      new Date().getTime() - 2 * 24 * 60 * 60 * 1000,
-    ).toDateString(),
-  };
-  requests.push(fakeRequest4);
-  lastExecutionTime = new Date(
-    new Date().getTime() - 1 * 24 * 60 * 60 * 1000,
-  ).getTime();
-  //last request has a recent time from 2 days ago, but execution is just 1 day ago, we should quit
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  test('lastRequest missing updateAt stops ingestion', () => {
+    templateRequest.updatedAt = '';
+    requests.push(templateRequest);
+    lastExecutionTime = 0;
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  });
 
-  const fakeRequest5: AtSpokeRequest = {
-    subject: 'Tough stuff',
-    requester: 'Somebody',
-    owner: 'Nobody',
-    status: 'OPEN',
-    privacyLevel: 'high',
-    team: 'winners',
-    org: 'Team Co.',
-    permalink: 'not applicable',
-    id: '333333333333',
-    isAutoResolve: false,
-    isFiled: true,
-    email: 'help@help.com',
-    createdAt: new Date().toDateString(),
-    updatedAt: new Date(
-      new Date().getTime() - 13 * 24 * 60 * 60 * 1000,
-    ).toDateString(),
-  };
-  requests.push(fakeRequest5);
-  lastExecutionTime = 0;
-  //last request has a recent time from 13 days ago, no Extime, since default is 14 day cutoff, keep going
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+  test('lastExecutionTime 2 days, pagination stops on time', () => {
+    templateRequest.updatedAt = getDaysAgoDateString(1);
+    requests.push(templateRequest);
+    lastExecutionTime = getTimeDaysAgo(2);
+    //last request is not older than 14 days or lastExecutionTime, so do not stop
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(false);
+    templateRequest.updatedAt = getDaysAgoDateString(3);
+    requests.push(templateRequest);
+    //last request is older than lastExecutionTime, so stop
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  });
 
-  const fakeRequest6: AtSpokeRequest = {
-    subject: 'Tough stuff',
-    requester: 'Somebody',
-    owner: 'Nobody',
-    status: 'OPEN',
-    privacyLevel: 'high',
-    team: 'winners',
-    org: 'Team Co.',
-    permalink: 'not applicable',
-    id: '333333333333',
-    isAutoResolve: false,
-    isFiled: true,
-    email: 'help@help.com',
-    createdAt: new Date().toDateString(),
-    updatedAt: new Date(
-      new Date().getTime() - 15 * 24 * 60 * 60 * 1000,
-    ).toDateString(),
-  };
-  requests.push(fakeRequest6);
-  lastExecutionTime = 0;
-  //last request has a recent time from 15 days ago, no Extime, since default is 14 day cutoff, quit
-  expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  test('Date() unparsable string for lastRequest updatedAt stops ingestion', () => {
+    templateRequest.updatedAt = 'JupiterOne is the best';
+    requests.push(templateRequest);
+    lastExecutionTime = 0;
+    expect(stopFetchingRequests(requests, lastExecutionTime)).toBe(true);
+  });
 });
