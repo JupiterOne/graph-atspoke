@@ -14,12 +14,16 @@ import { DATA_ACCOUNT_ENTITY } from './account';
 export async function fetchRequests({
   instance,
   jobState,
+  executionHistory,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config);
 
   const accountEntity = (await jobState.getData(DATA_ACCOUNT_ENTITY)) as Entity;
+  const lastExecutionTime: number =
+    executionHistory.lastSuccessful?.startedOn ||
+    new Date().getTime() - 14 * 24 * 60 * 60 * 1000;
 
-  await apiClient.iterateRequests(async (request) => {
+  await apiClient.iterateRequests(lastExecutionTime, async (request) => {
     if (request.requestTypeInfo) {
       delete request.requestTypeInfo;
     }

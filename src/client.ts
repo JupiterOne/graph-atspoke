@@ -54,7 +54,7 @@ type AtSpokeWebhook = {
   id: string;
 };
 
-type AtSpokeRequest = {
+export type AtSpokeRequest = {
   subject: string;
   requester: string;
   owner: string;
@@ -69,6 +69,8 @@ type AtSpokeRequest = {
   isAutoResolve: boolean;
   isFiled: boolean;
   email: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 type AtSpokeRequestType = {
@@ -133,7 +135,7 @@ export class APIClient {
         },
       };
       const reply = await this.contactAPI(
-        'https://api.askspoke.com/api/v1/users', 
+        'https://api.askspoke.com/api/v1/users',
         paramsToPass,
       );
 
@@ -143,7 +145,9 @@ export class APIClient {
         await iteratee(user);
       }
 
-      if (users.length < pageSize) { lastRecord = true; }
+      if (users.length < pageSize) {
+        lastRecord = true;
+      }
       recordsPulled = recordsPulled + pageSize;
     }
   }
@@ -177,7 +181,9 @@ export class APIClient {
         await iteratee(team);
       }
 
-      if (teams.length < pageSize) { lastRecord = true; }
+      if (teams.length < pageSize) {
+        lastRecord = true;
+      }
       recordsPulled = recordsPulled + pageSize;
     }
   }
@@ -207,39 +213,39 @@ export class APIClient {
    * @param iteratee receives each resource to produce entities/relationships
    */
   public async iterateRequests(
+    lastExecutionTime: number,
     iteratee: ResourceIteratee<AtSpokeRequest>,
   ): Promise<void> {
-    const recordsLimit = parseNumRequests(this.config.numRequests);
-    if (recordsLimit > 0) {
-      const pageSize = 100; //the max of the atSpoke v1 API
-      let recordsPulled = 0;
-      let lastRecord = false;
-      while ((recordsPulled < recordsLimit) && (!lastRecord)) {
-        let recordsToPull = pageSize;
-        if ((recordsLimit - recordsPulled) < (pageSize)) {
-          recordsToPull = recordsLimit - recordsPulled;;
-        }
-        const paramsToPass = {
-          params: {
-            start: recordsPulled, //starting index of requests. 0 is most recent.
-            limit: recordsToPull,
-            status: 'OPEN,RESOLVED,PENDING,LOCKED,AUTO_RESOLVED', //pulls only OPEN by default
-          },
-        };
-  
-        const reply = await this.contactAPI(
-          'https://api.askspoke.com/api/v1/requests',
-          paramsToPass,
-        );
-  
-        const requests: AtSpokeRequest[] = reply.results;
-  
-        for (const request of requests) {
-          await iteratee(request);
-        }
-        if (requests.length < pageSize) { lastRecord = true; }
-        recordsPulled = recordsPulled + pageSize;
+    const pageSize = 100; //the max of the atSpoke v1 API
+    let requestsPulled = 0;
+    let lastRequest = false;
+    while (!lastRequest) {
+      const paramsToPass = {
+        params: {
+          start: requestsPulled, //starting index of requests. 0 is most recent.
+          limit: pageSize,
+          status: 'OPEN,RESOLVED,PENDING,LOCKED,AUTO_RESOLVED', //pulls only OPEN by default
+        },
+      };
+
+      const reply = await this.contactAPI(
+        'https://api.askspoke.com/api/v1/requests',
+        paramsToPass,
+      );
+
+      const requests: AtSpokeRequest[] = reply.results;
+
+      for (const request of requests) {
+        await iteratee(request);
       }
+
+      if (requests.length < pageSize) {
+        lastRequest = true;
+      } //we got all the requests in the system
+      if (stopFetchingRequests(requests, lastExecutionTime)) {
+        lastRequest = true;
+      } //we got enough requests to cover to the last integration execution time
+      requestsPulled = requestsPulled + pageSize;
     }
   }
 
@@ -251,31 +257,30 @@ export class APIClient {
   public async iterateRequestTypes(
     iteratee: ResourceIteratee<AtSpokeRequestType>,
   ): Promise<void> {
+    const pageSize = 25;
+    let recordsPulled = 0;
+    let lastRecord = false;
+    while (!lastRecord) {
+      const paramsToPass = {
+        params: {
+          start: recordsPulled, //starting index. 0 is most recent.
+          limit: pageSize,
+        },
+      };
+      const reply = await this.contactAPI(
+        'https://api.askspoke.com/api/v1/request_types',
+        paramsToPass,
+      );
 
-    if (parseInt(this.config.numRequests) > 0) {
-      const pageSize = 25; 
-      let recordsPulled = 0;
-      let lastRecord = false;
-      while (!lastRecord) {
-        const paramsToPass = {
-          params: {
-            start: recordsPulled, //starting index. 0 is most recent.
-            limit: pageSize,
-          },
-        };
-        const reply = await this.contactAPI(
-          'https://api.askspoke.com/api/v1/request_types',
-          paramsToPass,
-        );
+      const requestTypes: AtSpokeRequestType[] = reply.results;
 
-        const requestTypes: AtSpokeRequestType[] = reply.results;
-
-        for (const requestType of requestTypes) {
-          await iteratee(requestType);
-        }
-        if (requestTypes.length < pageSize) { lastRecord = true; }
-        recordsPulled = recordsPulled + pageSize;
+      for (const requestType of requestTypes) {
+        await iteratee(requestType);
       }
+      if (requestTypes.length < pageSize) {
+        lastRecord = true;
+      }
+      recordsPulled = recordsPulled + pageSize;
     }
   }
 
@@ -302,22 +307,30 @@ export class APIClient {
   }
 }
 
-export function parseNumRequests(str) {
-  let retValue;
-  try {
-    retValue = parseInt(str);
-  } catch (err) {
-    throw new IntegrationProviderAuthenticationError({
-      cause: err,
-      endpoint: "client.parseNumRequests",
-      status: err.status,
-      statusText: "There was a problem parsing the NUM_REQUESTS config field.",
-    });
+export function stopFetchingRequests(
+  requests: AtSpokeRequest[],
+  lastExecutionTime: number,
+): boolean {
+  if (requests.length == 0) {
+    return true; //no requests, so we are done
   }
-  if (isNaN(retValue)) { retValue = 0; }
-  if (retValue < 0) { retValue = 0; }
-  if (retValue > 1000*1000*1000) { retValue = 1000 * 1000 * 1000; }
-  return retValue;
+  if (!requests[requests.length - 1].updatedAt) {
+    return true; //this shouldn't happen, but in case API screws up and gives undef or 0, we'll keep going
+  }
+  const lastRequestUpdatedAt: Date = new Date(
+    requests[requests.length - 1].updatedAt,
+  );
+  if (!(lastRequestUpdatedAt.getTime() > lastExecutionTime)) {
+    return true;
+  } //last request pulled is not younger than the last execution time, so don't fetch any more pages of requests
+  // also covers invalid strings for updatedAt, which return NaN on .getTime()
+  if (
+    lastRequestUpdatedAt.getTime() <
+    new Date().getTime() - 14 * 24 * 60 * 60 * 1000
+  ) {
+    return true;
+  } //if we're back more than 14 days, you can stop fetching pages of requests no matter what
+  return false;
 }
 
 export function createAPIClient(config: IntegrationConfig): APIClient {
