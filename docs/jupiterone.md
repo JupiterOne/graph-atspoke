@@ -1,6 +1,6 @@
-# Integration with JupiterOne
+# atSpoke Integration with JupiterOne
 
-## atSpoke + JupiterOne Integration Benefits
+## Integration Benefits
 
 - Visualize atSpoke users, teams, requests and webhooks in the JupiterOne graph.
 - Map atSpoke users to employees in your JupiterOne account.
